@@ -137,7 +137,7 @@ fun Main(modifier: Modifier = Modifier) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .requiredHeight(height = 38.dp)
-                            .padding(horizontal = -16.dp)
+                            .padding(horizontal = 0.dp)
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.Start),
@@ -385,13 +385,12 @@ fun Main(modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .padding(bottom = 40.dp)
                 ) {
-                    LazyColumn(
+                    Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top),
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White,
                                 modifier = Modifier
@@ -565,9 +564,7 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xffba1a1a)))
                                 }
                             }
-                        }
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White,
                                 modifier = Modifier
@@ -741,9 +738,7 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xffba1a1a)))
                                 }
                             }
-                        }
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White,
                                 modifier = Modifier
@@ -916,9 +911,7 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xffd0e1fb)))
                                 }
                             }
-                        }
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White,
                                 modifier = Modifier
@@ -1091,9 +1084,7 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xff4edea3)))
                                 }
                             }
-                        }
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White.copy(alpha = 0.8f),
                                 modifier = Modifier
@@ -1264,9 +1255,7 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xff006947)))
                                 }
                             }
-                        }
-                        item {
-                            Surface(
+                        Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = Color.White.copy(alpha = 0.8f),
                                 modifier = Modifier
@@ -1437,7 +1426,6 @@ fun Main(modifier: Modifier = Modifier) {
                                             .background(color = Color(0xff006947)))
                                 }
                             }
-                        }
                     }
                 }
             }

@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ContentScale.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Frame(modifier: Modifier = Modifier, badgeNumber: String) {
     Box(
@@ -807,7 +807,7 @@ fun Frame(modifier: Modifier = Modifier, badgeNumber: String) {
                                     shape = RoundedCornerShape(12.dp))
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.ab6axubbctl9j90jpkfw7x6wwfjazd1ynaciqzqauz6rjmewpc8oc9jvmfq9rjhvcko3iifrbbepcvbb28uwhkbye91ovys6adcnfifyu_3ueleeypmocgxsqo_7iys5xqj5u_j8o6hwdck0nwepi9dx0ajdmgp5thjeohvluxq4vj5orrit4jag_vhsbjh1juxug9fogifvpaegwsxn1ousq2xggrjniqvhu4akjgtyigwxhoxfygn3g),
+                                painter = painterResource(id = R.drawable.container),
                                 contentDescription = "AB6AXuBBCTl9J90jPkfW7X6WwfJaZd1yNaciQZQAUz6RjmEWPc8OC9jvmfq9rjHVCKO3iIfrBbePcvBB28UWHk-BYe91OvYS-6ADcnFIFYU_3uEleeYpMoCgXSqO_7IYS5-xQJ5U_J8O6HwdCk0nwEPi9dx0aJdmGP5tHjEOhVLuxq4VJ5ORRIt4jaG_vHSBjh1JUxug9fOGIfVPAeGWSXN1OuSq2xgGrJNI-QVHU4aKjgTyiGwxHO-XfYGn3g",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

@@ -17,7 +17,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ContentScale.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,32 +37,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Frame(modifier: Modifier = Modifier) {
+fun CalendarScreen(modifier: Modifier = Modifier, badgeNumber: String = "1") {
     Box(
         modifier = modifier
-            .requiredWidth(width = 390.dp)
-            .requiredHeight(height = 1104.dp)
+            .fillMaxSize()
             .background(color = Color(0xfffaf8ff))
     ) {
         Column(
             modifier = Modifier
-                .requiredWidth(width = 390.dp)
+                .fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(color = Color(0xfffaf8ff))
-                    .padding(start = 16.dp,
-                        end = 16.dp,
-                        bottom = 80.dp)
+                    .padding(start = 16.dp, end = 16.dp)
             ) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 120.dp)
                 ) {
                     item {
                         Row(
@@ -1937,6 +1937,6 @@ fun Frame(modifier: Modifier = Modifier) {
 
 @Preview(widthDp = 390, heightDp = 1104)
 @Composable
-private fun FramePreview() {
-    Frame(Modifier)
+private fun CalendarScreenPreview() {
+    CalendarScreen(Modifier)
 }

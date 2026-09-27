@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,9 +27,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ContentScale.Crop
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -41,29 +41,27 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Frame(modifier: Modifier = Modifier) {
+fun StatisticsScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .requiredWidth(width = 390.dp)
-            .requiredHeight(height = 1734.dp)
+            .fillMaxSize()
             .background(color = Color(0xfffaf8ff))
     ) {
         Column(
             modifier = Modifier
-                .requiredWidth(width = 390.dp)
+                .fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(color = Color(0xfffaf8ff))
-                    .padding(start = 16.dp,
-                        end = 16.dp,
-                        bottom = 80.dp)
+                    .padding(start = 16.dp, end = 16.dp)
             ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(top = 80.dp, bottom = 120.dp)
                 ) {
                     item {
                         Row(
@@ -1970,6 +1968,6 @@ fun Frame(modifier: Modifier = Modifier) {
 
 @Preview(widthDp = 390, heightDp = 1734)
 @Composable
-private fun FramePreview() {
-    Frame(Modifier)
+private fun StatisticsScreenPreview() {
+    StatisticsScreen(Modifier)
 }

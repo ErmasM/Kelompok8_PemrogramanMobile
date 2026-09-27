@@ -118,7 +118,8 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onTasksClick: () -> Unit = {},
     onCalendarClick: () -> Unit = {},
-    onAnalyticsClick: () -> Unit = {}
+    onAnalyticsClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {}
 ) {
 
     Box(
@@ -182,7 +183,7 @@ fun HomeScreen(
                             .size(44.dp)
                             .clip(CircleShape)
                             .background(LightPurple)
-                            .clickable { }
+                            .clickable { onNotificationClick() }
                     ) {
 
                         Icon(
@@ -359,6 +360,7 @@ fun HomeScreen(
         // ====================================================
 
         HomeBottomNavigation(
+            modifier = Modifier.align(Alignment.BottomCenter),
             onTasksClick = onTasksClick,
             onCalendarClick = onCalendarClick,
             onAnalyticsClick = onAnalyticsClick,
@@ -1032,6 +1034,7 @@ private fun StatusBadge(
 
 @Composable
 private fun HomeBottomNavigation(
+    modifier: Modifier = Modifier,
     onTasksClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onAnalyticsClick: () -> Unit,
@@ -1039,9 +1042,8 @@ private fun HomeBottomNavigation(
 ) {
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .align(Alignment.BottomCenter)
             .background(
                 Background.copy(alpha = 0.96f)
             )

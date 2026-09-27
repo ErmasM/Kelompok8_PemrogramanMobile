@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,12 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ContentScale.Crop
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,31 +47,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Profil(modifier: Modifier = Modifier) {
+fun ProfileScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .requiredWidth(width = 390.dp)
-            .requiredHeight(height = 1143.dp)
+            .fillMaxSize()
             .background(color = Color(0xfffaf8ff))
     ) {
         Column(
             modifier = Modifier
-                .requiredWidth(width = 390.dp)
+                .fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(color = Color(0xfffaf8ff))
-                    .padding(start = 16.dp,
-                        end = 16.dp,
-                        bottom = 80.dp)
+                    .padding(start = 16.dp, end = 16.dp)
             ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(top = 80.dp, bottom = 120.dp)
                 ) {
                     item {
                         Surface(
@@ -80,135 +82,97 @@ fun Profil(modifier: Modifier = Modifier) {
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .requiredWidth(width = 358.dp)
-                                    .requiredHeight(height = 329.dp)
+                                    .fillMaxWidth()
+                                    .padding(all = 20.dp)
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .requiredWidth(width = 358.dp)
-                                        .padding(all = 20.dp)
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
+                                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
-                                            verticalAlignment = Alignment.CenterVertically
+                                        Box(
+                                            modifier = Modifier.requiredSize(size = 80.dp)
                                         ) {
                                             Box(
                                                 modifier = Modifier
-                                                    .requiredSize(size = 220.dp)
+                                                    .fillMaxSize()
+                                                    .clip(shape = RoundedCornerShape(9999.dp))
+                                                    .background(brush = Brush.linearGradient(
+                                                        0f to Color(0xff0059b8),
+                                                        1f to Color(0xff6ffbbe),
+                                                        start = Offset(0f, 80f),
+                                                        end = Offset(80f, 0f)))
+                                                    .padding(all = 2.dp)
                                             ) {
-                                                Column() {
-                                                    Column(
-                                                        verticalArrangement = Arrangement.Center,
-                                                        modifier = Modifier
-                                                            .clip(shape = RoundedCornerShape(9999.dp))
-                                                            .background(brush = Brush.linearGradient(
-                                                                0f to Color(0xff0059b8),
-                                                                1f to Color(0xff6ffbbe),
-                                                                start = Offset(0f, 220.34f),
-                                                                end = Offset(220.34f, 0f)))
-                                                            .padding(all = 2.dp)
-                                                    ) {
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .requiredHeight(height = 216.dp)
-                                                                .clip(shape = RoundedCornerShape(9999.dp))
-                                                                .background(color = Color(0xffebedff)))
-                                                    }
-                                                }
-                                                Row(
-                                                    horizontalArrangement = Arrangement.Center,
-                                                    verticalAlignment = Alignment.CenterVertically,
+                                                Box(
                                                     modifier = Modifier
-                                                        .align(alignment = Alignment.BottomEnd)
-                                                        .offset(x = 4.dp,
-                                                            y = 4.dp)
-                                                        .requiredSize(size = 24.dp)
+                                                        .fillMaxSize()
                                                         .clip(shape = RoundedCornerShape(9999.dp))
-                                                        .background(color = Color(0xff0059b8))
-                                                        .shadow(elevation = 2.dp,
-                                                            shape = RoundedCornerShape(9999.dp))
-                                                ) {
-                                                    Image(
-                                                        painter = painterResource(id = R.drawable.container),
-                                                        contentDescription = "Container",
-                                                        colorFilter = ColorFilter.tint(Color.White))
-                                                }
+                                                        .background(color = Color(0xffebedff)))
                                             }
-                                            Column() {
-                                                Row(
-                                                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                ) {
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .requiredWidth(width = 31.dp)
-                                                    ) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.Center,
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier
+                                                    .align(alignment = Alignment.BottomEnd)
+                                                    .offset(x = 2.dp, y = 2.dp)
+                                                    .requiredSize(size = 24.dp)
+                                                    .clip(shape = RoundedCornerShape(9999.dp))
+                                                    .background(color = Color(0xff0059b8))
+                                                    .shadow(elevation = 2.dp, shape = RoundedCornerShape(9999.dp))
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.container),
+                                                    contentDescription = "Container",
+                                                    colorFilter = ColorFilter.tint(Color.White))
+                                            }
+                                        }
+                                        Column(
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text(
+                                                    text = "Alex",
+                                                    color = Color(0xff071747),
+                                                    style = TextStyle(
+                                                        fontSize = 22.sp,
+                                                        fontWeight = FontWeight.Bold),
+                                                    modifier = Modifier.wrapContentHeight(align = Alignment.CenterVertically))
+                                                InputChip(
+                                                    label = {
                                                         Text(
-                                                            text = "Alex",
-                                                            color = Color(0xff071747),
-                                                            lineHeight = 1.27.em,
+                                                            text = "CS '26",
+                                                            color = Color(0xff006947),
                                                             style = TextStyle(
-                                                                fontSize = 22.sp,
-                                                                fontWeight = FontWeight.Bold),
-                                                            modifier = Modifier
-                                                                .wrapContentHeight(align = Alignment.CenterVertically))
-                                                    }
-                                                    InputChip(
-                                                        label = {
-                                                            Text(
-                                                                text = "CS\n'26",
-                                                                color = Color(0xff006947),
-                                                                lineHeight = 1.4.em,
-                                                                style = TextStyle(
-                                                                    fontSize = 10.sp,
-                                                                    fontWeight = FontWeight.Bold,
-                                                                    letterSpacing = 0.4.sp),
-                                                                modifier = Modifier
-                                                                    .wrapContentHeight(align = Alignment.CenterVertically))
-                                                        },
-                                                        leadingIcon = {
-                                                            Image(
-                                                                painter = painterResource(id = R.drawable.container),
-                                                                contentDescription = "Container",
-                                                                colorFilter = ColorFilter.tint(Color(0xff006947)))
-                                                        },
-                                                        shape = RoundedCornerShape(9999.dp),
-                                                        colors = FilterChipDefaults.filterChipColors(
-                                                            containerColor = Color(0xff00855b).copy(alpha = 0.15f)
-                                                        ),
-                                                        selected = true,
-                                                        onClick = { })
-                                                }
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                ) {
-                                                    Text(
-                                                        text = "alex@student.ac.id",
-                                                        color = Color(0xff505f76),
-                                                        lineHeight = 1.43.em,
-                                                        style = TextStyle(
-                                                            fontSize = 14.sp),
-                                                        modifier = Modifier
-                                                            .wrapContentHeight(align = Alignment.CenterVertically))
-                                                }
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(top = 2.dp)
-                                                ) {
-                                                    Spacer(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth())
-                                                }
+                                                                fontSize = 10.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                letterSpacing = 0.4.sp))
+                                                    },
+                                                    leadingIcon = {
+                                                        Image(
+                                                            painter = painterResource(id = R.drawable.container),
+                                                            contentDescription = "Container",
+                                                            colorFilter = ColorFilter.tint(Color(0xff006947)))
+                                                    },
+                                                    shape = RoundedCornerShape(9999.dp),
+                                                    colors = FilterChipDefaults.filterChipColors(
+                                                        containerColor = Color(0xff00855b).copy(alpha = 0.15f)
+                                                    ),
+                                                    selected = true,
+                                                    onClick = { })
                                             }
+                                            Text(
+                                                text = "alex@student.ac.id",
+                                                color = Color(0xff505f76),
+                                                style = TextStyle(fontSize = 14.sp),
+                                                modifier = Modifier.wrapContentHeight(align = Alignment.CenterVertically))
                                         }
                                     }
                                     Row(
@@ -1270,6 +1234,6 @@ fun Profil(modifier: Modifier = Modifier) {
 
 @Preview(widthDp = 390, heightDp = 1143)
 @Composable
-private fun ProfilPreview() {
-    Profil(Modifier)
+private fun ProfileScreenPreview() {
+    ProfileScreen(Modifier)
 }

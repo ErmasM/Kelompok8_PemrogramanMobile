@@ -2,6 +2,7 @@ package com.kelompok8.studytrack
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,10 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun WelcomeScreen(modifier: Modifier = Modifier) {
+fun WelcomeScreen(
+    modifier: Modifier = Modifier,
+    onGetStartedClick: () -> Unit = {}
+) {
 
     Box(
         modifier = modifier
@@ -336,6 +340,8 @@ fun WelcomeScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .requiredHeight(52.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { onGetStartedClick() }
                         .shadow(
                             elevation = 4.dp,
                             shape = RoundedCornerShape(12.dp)
