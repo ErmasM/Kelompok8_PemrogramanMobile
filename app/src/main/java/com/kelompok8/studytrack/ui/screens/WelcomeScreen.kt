@@ -1,6 +1,7 @@
 package com.kelompok8.studytrack.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,10 +13,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.ShowChart
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +36,10 @@ import com.kelompok8.studytrack.ui.theme.StudyBlueLight
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(
+    onGetStartedClick: () -> Unit,
+    onLoginClick: () -> Unit
+) {
 
     Column(
         modifier = Modifier
@@ -44,12 +54,14 @@ fun WelcomeScreen() {
     ) {
 
         // =========================
-        // LOGO SEMENTARA
+        // LOGO
         // =========================
 
-        Text(
-            text = "🎓",
-            fontSize = 52.sp
+        Icon(
+            imageVector = Icons.Outlined.School,
+            contentDescription = "StudyTrack",
+            modifier = Modifier.size(56.dp),
+            tint = StudyBlue
         )
 
         Spacer(
@@ -107,9 +119,11 @@ fun WelcomeScreen() {
                 verticalArrangement = Arrangement.Center
             ) {
 
-                Text(
-                    text = "🎓",
-                    fontSize = 88.sp
+                Icon(
+                    imageVector = Icons.Outlined.School,
+                    contentDescription = null,
+                    modifier = Modifier.size(96.dp),
+                    tint = StudyBlue
                 )
 
                 Spacer(
@@ -149,19 +163,19 @@ fun WelcomeScreen() {
         ) {
 
             FeatureCard(
-                icon = "📅",
+                icon = Icons.Outlined.CalendarMonth,
                 title = "Smart Sync",
                 modifier = Modifier.weight(1f)
             )
 
             FeatureCard(
-                icon = "⏱",
+                icon = Icons.Outlined.Timer,
                 title = "Focus Flow",
                 modifier = Modifier.weight(1f)
             )
 
             FeatureCard(
-                icon = "📈",
+                icon = Icons.Outlined.ShowChart,
                 title = "GPA Trends",
                 modifier = Modifier.weight(1f)
             )
@@ -176,9 +190,7 @@ fun WelcomeScreen() {
         // =========================
 
         Button(
-            onClick = {
-                // Nanti diarahkan ke RegisterScreen
-            },
+            onClick = onGetStartedClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -219,7 +231,10 @@ fun WelcomeScreen() {
                 text = "Log in",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = StudyBlue
+                color = StudyBlue,
+                modifier = Modifier.clickable(
+                    onClick = onLoginClick
+                )
             )
         }
 
@@ -245,7 +260,7 @@ fun WelcomeScreen() {
 
 @Composable
 private fun FeatureCard(
-    icon: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     modifier: Modifier = Modifier
 ) {
@@ -269,9 +284,11 @@ private fun FeatureCard(
             verticalArrangement = Arrangement.Center
         ) {
 
-            Text(
-                text = icon,
-                fontSize = 24.sp
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+                tint = StudyBlue
             )
 
             Spacer(
