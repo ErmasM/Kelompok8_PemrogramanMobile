@@ -54,7 +54,8 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
 fun ProfileScreen(
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    onEditProfileClick: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -76,7 +77,9 @@ fun ProfileScreen(
         }
 
         item {
-            ProfileCard()
+            ProfileCard(
+                onEditProfileClick = onEditProfileClick
+            )
         }
 
         item {
@@ -106,9 +109,9 @@ fun ProfileScreen(
 }
 
 
-/* ============================================================
-   HEADER
-   ============================================================ */
+// ============================================================
+// HEADER
+// ============================================================
 
 @Composable
 private fun ProfileHeader(
@@ -118,16 +121,20 @@ private fun ProfileHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = 2.dp,
+                horizontal = 4.dp,
                 vertical = 4.dp
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
+        // =================================================
+        // LOGO
+        // =================================================
+
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
+                .size(50.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .background(StudyBlue),
             contentAlignment = Alignment.Center
         ) {
@@ -135,51 +142,62 @@ private fun ProfileHeader(
                 imageVector = Icons.Outlined.School,
                 contentDescription = "StudyTrack",
                 tint = Color.White,
-                modifier = Modifier.size(23.dp)
+                modifier = Modifier.size(29.dp)
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(
+            modifier = Modifier.width(12.dp)
+        )
+
+        // =================================================
+        // TITLE
+        // =================================================
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = "STUDYTRACK",
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = StudyBlue,
-                letterSpacing = 0.5.sp
+                color = StudyBlue
             )
 
             Text(
                 text = "Profil",
-                fontSize = 23.sp,
-                fontWeight = FontWeight.Medium,
-                color = StudyNavy
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
-        // =========================
+        // =================================================
         // NOTIFICATION
-        // =========================
+        // =================================================
 
         Icon(
             imageVector = Icons.Outlined.NotificationsNone,
             contentDescription = "Notifikasi",
-            tint = StudyNavy,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
-                .size(27.dp)
+                .size(28.dp)
                 .clickable {
                     onNotificationClick()
                 }
         )
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(
+            modifier = Modifier.width(16.dp)
+        )
+
+        // =================================================
+        // PROFILE ICON
+        // =================================================
 
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(44.dp)
                 .clip(CircleShape)
                 .background(StudyBlue),
             contentAlignment = Alignment.Center
@@ -188,19 +206,21 @@ private fun ProfileHeader(
                 imageVector = Icons.Outlined.Person,
                 contentDescription = "Profil",
                 tint = Color.White,
-                modifier = Modifier.size(23.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
     }
 }
 
 
-/* ============================================================
-   PROFILE CARD
-   ============================================================ */
+// ============================================================
+// PROFILE CARD
+// ============================================================
 
 @Composable
-private fun ProfileCard() {
+private fun ProfileCard(
+    onEditProfileClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -236,7 +256,9 @@ private fun ProfileCard() {
                     )
                 }
 
-                Spacer(modifier = Modifier.width(18.dp))
+                Spacer(
+                    modifier = Modifier.width(18.dp)
+                )
 
                 Column(
                     modifier = Modifier.weight(1f)
@@ -251,7 +273,9 @@ private fun ProfileCard() {
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(modifier = Modifier.height(3.dp))
+                    Spacer(
+                        modifier = Modifier.height(3.dp)
+                    )
 
                     Text(
                         text = "ermas@student.unsoed.ac.id",
@@ -261,7 +285,9 @@ private fun ProfileCard() {
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
 
                     Surface(
                         shape = RoundedCornerShape(20.dp),
@@ -281,7 +307,9 @@ private fun ProfileCard() {
                                 modifier = Modifier.size(15.dp)
                             )
 
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
+                            )
 
                             Text(
                                 text = "Informatika • 2024",
@@ -294,7 +322,9 @@ private fun ProfileCard() {
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
 
             Box(
                 modifier = Modifier
@@ -303,7 +333,9 @@ private fun ProfileCard() {
                     .background(Color(0xFFEEF0F6))
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,7 +353,9 @@ private fun ProfileCard() {
                         modifier = Modifier.size(22.dp)
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(
+                        modifier = Modifier.width(8.dp)
+                    )
 
                     Text(
                         text = "Status Mahasiswa Aktif",
@@ -331,7 +365,14 @@ private fun ProfileCard() {
                     )
                 }
 
+                // =================================================
+                // EDIT PROFIL
+                // =================================================
+
                 Surface(
+                    modifier = Modifier.clickable {
+                        onEditProfileClick()
+                    },
                     shape = RoundedCornerShape(22.dp),
                     color = Color(0xFFE9ECFF)
                 ) {
@@ -349,7 +390,9 @@ private fun ProfileCard() {
                             modifier = Modifier.size(18.dp)
                         )
 
-                        Spacer(modifier = Modifier.width(5.dp))
+                        Spacer(
+                            modifier = Modifier.width(5.dp)
+                        )
 
                         Text(
                             text = "Edit Profil",
@@ -365,9 +408,9 @@ private fun ProfileCard() {
 }
 
 
-/* ============================================================
-   PROFILE STATISTICS
-   ============================================================ */
+// ============================================================
+// PROFILE STATISTICS
+// ============================================================
 
 @Composable
 private fun ProfileStats() {
@@ -444,7 +487,9 @@ private fun ProfileStat(
                 modifier = Modifier.size(21.dp)
             )
 
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(
+                modifier = Modifier.width(4.dp)
+            )
 
             Text(
                 text = value,
@@ -454,7 +499,9 @@ private fun ProfileStat(
             )
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
 
         Text(
             text = label,
@@ -477,9 +524,9 @@ private fun VerticalDivider() {
 }
 
 
-/* ============================================================
-   SECTION TITLE
-   ============================================================ */
+// ============================================================
+// SECTION TITLE
+// ============================================================
 
 @Composable
 private fun SectionTitle(
@@ -499,9 +546,9 @@ private fun SectionTitle(
 }
 
 
-/* ============================================================
-   PREFERENCES
-   ============================================================ */
+// ============================================================
+// PREFERENCES
+// ============================================================
 
 @Composable
 private fun PreferencesCard() {
@@ -559,9 +606,9 @@ private fun PreferencesCard() {
 }
 
 
-/* ============================================================
-   SUPPORT
-   ============================================================ */
+// ============================================================
+// SUPPORT
+// ============================================================
 
 @Composable
 private fun SupportCard() {
@@ -601,9 +648,9 @@ private fun SupportCard() {
 }
 
 
-/* ============================================================
-   MENU ITEM
-   ============================================================ */
+// ============================================================
+// MENU ITEM
+// ============================================================
 
 @Composable
 private fun ProfileMenuItem(
@@ -637,7 +684,9 @@ private fun ProfileMenuItem(
             )
         }
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(
+            modifier = Modifier.width(14.dp)
+        )
 
         Column(
             modifier = Modifier.weight(1f)
@@ -649,7 +698,9 @@ private fun ProfileMenuItem(
                 color = StudyNavy
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
             Text(
                 text = description,
@@ -678,7 +729,9 @@ private fun ProfileMenuItem(
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(
+                modifier = Modifier.width(8.dp)
+            )
         }
 
         Icon(

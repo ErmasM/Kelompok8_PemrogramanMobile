@@ -1,6 +1,7 @@
 package com.kelompok8.studytrack.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,10 @@ import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
-fun CalendarScreen() {
+fun CalendarScreen(
+    onNotificationClick: () -> Unit,
+    onProfileClick: () -> Unit
+) {
 
     var selectedDay by remember {
         mutableIntStateOf(16)
@@ -59,33 +63,48 @@ fun CalendarScreen() {
             .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(
             horizontal = 20.dp,
-            vertical = 20.dp
+            vertical = 16.dp
         ),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
 
-        // =========================
+        // ====================================================
         // HEADER
-        // =========================
+        // ====================================================
 
         item {
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 0.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(
-                    imageVector = Icons.Outlined.School,
-                    contentDescription = "StudyTrack",
-                    modifier = Modifier.size(44.dp),
-                    tint = StudyBlue
-                )
+                // LOGO STUDYTRACK
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(
+                            color = StudyBlue,
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Outlined.School,
+                        contentDescription = "StudyTrack",
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
 
                 Spacer(
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.width(12.dp)
                 )
 
+                // JUDUL
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -105,29 +124,49 @@ fun CalendarScreen() {
                     )
                 }
 
+                // NOTIFIKASI
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
                     contentDescription = "Notifikasi",
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable {
+                            onNotificationClick()
+                        },
                     tint = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.width(16.dp)
                 )
 
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier.size(30.dp),
-                    tint = StudyBlue
-                )
+                // PROFILE
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(
+                            color = StudyBlue,
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            onProfileClick()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Outlined.Person,
+                        contentDescription = "Profil",
+                        tint = Color.White,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
             }
         }
 
-        // =========================
+        // ====================================================
         // KALENDER
-        // =========================
+        // ====================================================
 
         item {
 
@@ -145,10 +184,6 @@ fun CalendarScreen() {
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
-
-                    // =========================
-                    // BULAN
-                    // =========================
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -209,9 +244,9 @@ fun CalendarScreen() {
             }
         }
 
-        // =========================
+        // ====================================================
         // AGENDA
-        // =========================
+        // ====================================================
 
         item {
 
@@ -275,9 +310,9 @@ fun CalendarScreen() {
             }
         }
 
-        // =========================
+        // ====================================================
         // AGENDA 1
-        // =========================
+        // ====================================================
 
         item {
 
@@ -291,9 +326,9 @@ fun CalendarScreen() {
             )
         }
 
-        // =========================
+        // ====================================================
         // AGENDA 2
-        // =========================
+        // ====================================================
 
         item {
 
@@ -307,9 +342,9 @@ fun CalendarScreen() {
             )
         }
 
-        // =========================
+        // ====================================================
         // AGENDA 3
-        // =========================
+        // ====================================================
 
         item {
 
@@ -403,7 +438,10 @@ private fun CalendarGrid(
                                     } else {
                                         Color.Transparent
                                     }
-                                ),
+                                )
+                                .clickable {
+                                    onDaySelected(day)
+                                },
                             contentAlignment = Alignment.Center
                         ) {
 

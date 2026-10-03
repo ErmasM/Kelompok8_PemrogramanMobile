@@ -2,6 +2,7 @@ package com.kelompok8.studytrack.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
@@ -52,7 +54,7 @@ import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyNavy
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
-import androidx.compose.foundation.clickable
+
 @Composable
 fun AnalyticsScreen(
     onNotificationClick: () -> Unit
@@ -70,18 +72,35 @@ fun AnalyticsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
+        // ====================================================
+        // HEADER
+        // ====================================================
+
         item {
             AnalyticsHeader(
                 onNotificationClick = onNotificationClick
             )
         }
+
+        // ====================================================
+        // OVERALL COMPLETION
+        // ====================================================
+
         item {
             OverallCompletionCard()
         }
 
+        // ====================================================
+        // ACTIVITY
+        // ====================================================
+
         item {
             ActivityCard()
         }
+
+        // ====================================================
+        // PROGRESS BY COURSE
+        // ====================================================
 
         item {
             ProgressByCourseHeader()
@@ -154,9 +173,10 @@ fun AnalyticsScreen(
     }
 }
 
-/* =========================
-   HEADER
-   ========================= */
+
+// =====================================================
+// HEADER
+// =====================================================
 
 @Composable
 private fun AnalyticsHeader(
@@ -165,78 +185,108 @@ private fun AnalyticsHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 2.dp, vertical = 4.dp),
+            .padding(
+                horizontal = 4.dp,
+                vertical = 4.dp
+            ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        // =================================================
+        // LOGO
+        // =================================================
+
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
+                .size(50.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .background(StudyBlue),
             contentAlignment = Alignment.Center
         ) {
+
             Icon(
                 imageVector = Icons.Outlined.MenuBook,
                 contentDescription = "StudyTrack",
                 tint = Color.White,
-                modifier = Modifier.size(23.dp)
+                modifier = Modifier.size(29.dp)
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(
+            modifier = Modifier.width(12.dp)
+        )
+
+        // =================================================
+        // TITLE
+        // =================================================
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
+
             Text(
                 text = "STUDYTRACK",
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = StudyBlue,
-                letterSpacing = 0.5.sp
+                color = StudyBlue
             )
 
             Text(
                 text = "Statistik",
-                fontSize = 23.sp,
-                fontWeight = FontWeight.Medium,
-                color = StudyNavy
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
+
+        // =================================================
+        // NOTIFICATION
+        // =================================================
 
         Icon(
             imageVector = Icons.Outlined.NotificationsNone,
             contentDescription = "Notifikasi",
-            tint = StudyNavy,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
-                .size(27.dp)
+                .size(28.dp)
                 .clickable {
                     onNotificationClick()
                 }
         )
 
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(
+            modifier = Modifier.width(16.dp)
+        )
+
+        // =================================================
+        // PROFILE
+        // =================================================
 
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(50))
-                .background(StudyBlue),
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(StudyBlue)
+                .clickable {
+                    // Navigasi profile bisa ditambahkan dari AppNavigation
+                },
             contentAlignment = Alignment.Center
         ) {
+
             Icon(
                 imageVector = Icons.Outlined.Person,
                 contentDescription = "Profil",
                 tint = Color.White,
-                modifier = Modifier.size(23.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
     }
 }
 
-/* =========================
-   OVERALL COMPLETION
-   ========================= */
+
+// =====================================================
+// OVERALL COMPLETION
+// =====================================================
 
 @Composable
 private fun OverallCompletionCard() {
@@ -396,9 +446,10 @@ private fun OverallCompletionCard() {
     }
 }
 
-/* =========================
-   CIRCULAR PROGRESS
-   ========================= */
+
+// =====================================================
+// CIRCULAR PROGRESS
+// =====================================================
 
 @Composable
 private fun CompletionRing() {
@@ -464,9 +515,10 @@ private fun CompletionRing() {
     }
 }
 
-/* =========================
-   STAT BOX
-   ========================= */
+
+// =====================================================
+// STAT BOX
+// =====================================================
 
 @Composable
 private fun StatBox(
@@ -530,9 +582,10 @@ private fun StatBox(
     }
 }
 
-/* =========================
-   ACTIVITY
-   ========================= */
+
+// =====================================================
+// ACTIVITY
+// =====================================================
 
 @Composable
 private fun ActivityCard() {
@@ -616,9 +669,10 @@ private fun ActivityCard() {
     }
 }
 
-/* =========================
-   ACTIVITY CHART
-   ========================= */
+
+// =====================================================
+// ACTIVITY CHART
+// =====================================================
 
 @Composable
 private fun ActivityChart() {
@@ -716,9 +770,10 @@ private fun ActivityChart() {
     }
 }
 
-/* =========================
-   PROGRESS BY COURSE
-   ========================= */
+
+// =====================================================
+// PROGRESS BY COURSE
+// =====================================================
 
 @Composable
 private fun ProgressByCourseHeader() {
@@ -752,9 +807,10 @@ private fun ProgressByCourseHeader() {
     }
 }
 
-/* =========================
-   COURSE PROGRESS CARD
-   ========================= */
+
+// =====================================================
+// COURSE PROGRESS CARD
+// =====================================================
 
 @Composable
 private fun CourseProgressCard(

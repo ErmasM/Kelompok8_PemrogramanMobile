@@ -1,16 +1,22 @@
 package com.kelompok8.studytrack.navigation
 
+import android.app.Activity
 import android.net.Uri
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -22,6 +28,7 @@ import com.kelompok8.studytrack.ui.screens.AddTaskScreen
 import com.kelompok8.studytrack.ui.screens.AnalyticsScreen
 import com.kelompok8.studytrack.ui.screens.CalendarScreen
 import com.kelompok8.studytrack.ui.screens.CoursesScreen
+import com.kelompok8.studytrack.ui.screens.EditProfileScreen
 import com.kelompok8.studytrack.ui.screens.HomeScreen
 import com.kelompok8.studytrack.ui.screens.LoginScreen
 import com.kelompok8.studytrack.ui.screens.NotificationScreen
@@ -46,6 +53,8 @@ object Routes {
 
     const val COURSES = "courses"
 
+    const val EDIT_PROFILE = "edit_profile"
+
     const val NOTIFICATIONS = "notifications"
     const val ADD_TASK = "add_task"
 
@@ -63,6 +72,18 @@ fun AppNavigation() {
 
     val currentRoute =
         backStackEntry?.destination?.route
+
+
+    // =========================================================
+    // EXIT DIALOG
+    // =========================================================
+
+    var showExitDialog by remember {
+        mutableStateOf(false)
+    }
+
+    val context = LocalContext.current
+    val activity = context as? Activity
 
 
     // =========================================================
@@ -139,6 +160,128 @@ fun AppNavigation() {
         Routes.ANALYTICS,
         Routes.PROFILE
     )
+
+
+    // =========================================================
+    // SYSTEM BACK BUTTON
+    // =========================================================
+
+    BackHandler {
+
+        when {
+
+            // ---------------------------------------------
+            // HOME / WELCOME
+            // Tekan Back = konfirmasi keluar aplikasi
+            // ---------------------------------------------
+
+            currentRoute == Routes.HOME ||
+                    currentRoute == Routes.WELCOME -> {
+
+                showExitDialog = true
+            }
+
+
+            // ---------------------------------------------
+            // HALAMAN UTAMA
+            // Back = kembali ke Home
+            // ---------------------------------------------
+
+            currentRoute in mainRoutes -> {
+
+                navController.navigate(
+                    Routes.HOME
+                ) {
+
+                    popUpTo(
+                        Routes.HOME
+                    ) {
+
+                        inclusive = false
+                    }
+
+                    launchSingleTop = true
+                }
+            }
+
+
+            // ---------------------------------------------
+            // HALAMAN LAIN
+            // Back = kembali ke halaman sebelumnya
+            // ---------------------------------------------
+
+            else -> {
+
+                navController.popBackStack()
+            }
+        }
+    }
+
+
+    // =========================================================
+    // EXIT CONFIRMATION DIALOG
+    // =========================================================
+
+    if (showExitDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+
+                showExitDialog = false
+            },
+
+            title = {
+
+                Text(
+                    text = "Keluar dari StudyTrack?"
+                )
+            },
+
+            text = {
+
+                Text(
+                    text = "Apakah kamu yakin ingin keluar dari aplikasi?"
+                )
+            },
+
+            confirmButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        showExitDialog = false
+
+                        activity?.finish()
+                    }
+
+                ) {
+
+                    Text(
+                        text = "Keluar"
+                    )
+                }
+            },
+
+            dismissButton = {
+
+                TextButton(
+
+                    onClick = {
+
+                        showExitDialog = false
+                    }
+
+                ) {
+
+                    Text(
+                        text = "Batal"
+                    )
+                }
+            }
+        )
+    }
 
 
     // =========================================================
@@ -242,7 +385,9 @@ fun AppNavigation() {
                             Routes.HOME
                         ) {
 
-                            popUpTo(Routes.LOGIN) {
+                            // Hapus Welcome, Register,
+                            // dan Login dari back stack
+                            popUpTo(Routes.WELCOME) {
 
                                 inclusive = true
                             }
@@ -379,7 +524,22 @@ fun AppNavigation() {
 
             composable(Routes.CALENDAR) {
 
-                CalendarScreen()
+                CalendarScreen(
+
+                    onNotificationClick = {
+
+                        navController.navigate(
+                            Routes.NOTIFICATIONS
+                        )
+                    },
+
+                    onProfileClick = {
+
+                        navController.navigate(
+                            Routes.PROFILE
+                        )
+                    }
+                )
             }
 
 
@@ -414,6 +574,34 @@ fun AppNavigation() {
                         navController.navigate(
                             Routes.NOTIFICATIONS
                         )
+                    },
+
+                    onEditProfileClick = {
+
+                        navController.navigate(
+                            Routes.EDIT_PROFILE
+                        )
+                    }
+                )
+            }
+
+
+            // =================================================
+            // EDIT PROFILE
+            // =================================================
+
+            composable(Routes.EDIT_PROFILE) {
+
+                EditProfileScreen(
+
+                    onBackClick = {
+
+                        navController.popBackStack()
+                    },
+
+                    onSaveClick = {
+
+                        navController.popBackStack()
                     }
                 )
             }

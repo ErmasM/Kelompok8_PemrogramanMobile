@@ -50,6 +50,7 @@ import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyNavy
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
+
 @Composable
 fun AddTaskScreen(
     onBackClick: () -> Unit,
@@ -104,9 +105,9 @@ fun AddTaskScreen(
             .fillMaxSize()
             .background(Color(0xFFF9F8FF)),
         contentPadding = PaddingValues(
-            bottom = 36.dp
+            bottom = 32.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(22.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
 
         // =====================================================
@@ -120,8 +121,8 @@ fun AddTaskScreen(
                     .fillMaxWidth()
                     .background(Color.White)
                     .padding(
-                        horizontal = 20.dp,
-                        vertical = 16.dp
+                        horizontal = 16.dp,
+                        vertical = 10.dp
                     ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -140,7 +141,7 @@ fun AddTaskScreen(
                 }
 
                 Spacer(
-                    modifier = Modifier.width(8.dp)
+                    modifier = Modifier.width(4.dp)
                 )
 
                 // LOGO
@@ -165,7 +166,7 @@ fun AddTaskScreen(
                             imageVector = Icons.Outlined.School,
                             contentDescription = "StudyTrack",
                             tint = Color.White,
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(29.dp)
                         )
                     }
                 }
@@ -177,7 +178,7 @@ fun AddTaskScreen(
                 Text(
                     text = "Tambah Tugas",
                     modifier = Modifier.weight(1f),
-                    fontSize = 27.sp,
+                    fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
                     color = StudyNavy
                 )
@@ -186,7 +187,7 @@ fun AddTaskScreen(
                     imageVector = Icons.Outlined.Person,
                     contentDescription = "Profil",
                     tint = StudyBlue,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
         }
@@ -211,7 +212,7 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .height(68.dp),
+                    .height(64.dp),
                 placeholder = {
                     Text(
                         text = "Masukkan judul tugas",
@@ -219,7 +220,7 @@ fun AddTaskScreen(
                     )
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(18.dp)
             )
         }
 
@@ -243,7 +244,7 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .height(68.dp),
+                    .height(64.dp),
                 placeholder = {
                     Text(
                         text = "Contoh: Pemrograman Mobile",
@@ -259,7 +260,7 @@ fun AddTaskScreen(
                     )
                 },
                 singleLine = true,
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(18.dp)
             )
         }
 
@@ -270,31 +271,8 @@ fun AddTaskScreen(
 
         item {
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Text(
-                    text = "Deskripsi & Catatan",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = StudyNavy,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = "Markdown didukung",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = StudyTextSecondary
-                )
-            }
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
+            FormLabel(
+                text = "Deskripsi & Catatan"
             )
 
             OutlinedTextField(
@@ -305,7 +283,7 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .height(150.dp),
+                    .height(140.dp),
                 placeholder = {
                     Text(
                         text = "Tuliskan deskripsi tugas...",
@@ -320,7 +298,7 @@ fun AddTaskScreen(
                         tint = StudyBlue
                     )
                 },
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(18.dp)
             )
         }
 
@@ -356,7 +334,7 @@ fun AddTaskScreen(
                     modifier = Modifier.weight(1f),
                     text = "Sedang",
                     selected = priority == "Sedang",
-                    color = Color(0xFFFF9800),
+                    color = Color(0xFFF59E0B),
                     onClick = {
                         priority = "Sedang"
                     }
@@ -397,11 +375,13 @@ fun AddTaskScreen(
                     onValueChange = {
                         dueDate = it
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1.15f)
+                        .height(62.dp),
                     placeholder = {
                         Text(
                             text = "17 Sep 2026",
-                            fontSize = 15.sp
+                            fontSize = 14.sp
                         )
                     },
                     leadingIcon = {
@@ -413,7 +393,7 @@ fun AddTaskScreen(
                         )
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(18.dp)
                 )
 
                 OutlinedTextField(
@@ -421,11 +401,13 @@ fun AddTaskScreen(
                     onValueChange = {
                         dueTime = it
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(0.85f)
+                        .height(62.dp),
                     placeholder = {
                         Text(
                             text = "23.59",
-                            fontSize = 15.sp
+                            fontSize = 14.sp
                         )
                     },
                     leadingIcon = {
@@ -437,7 +419,7 @@ fun AddTaskScreen(
                         )
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(18.dp)
                 )
             }
         }
@@ -528,7 +510,7 @@ fun AddTaskScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .clickable { },
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFF0EFFF)
                 ),
@@ -541,15 +523,15 @@ fun AddTaskScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            horizontal = 24.dp,
-                            vertical = 28.dp
+                            horizontal = 20.dp,
+                            vertical = 22.dp
                         ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     Card(
-                        modifier = Modifier.size(64.dp),
-                        shape = RoundedCornerShape(50.dp),
+                        modifier = Modifier.size(58.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFFD9E7FF)
                         ),
@@ -572,24 +554,24 @@ fun AddTaskScreen(
                                 contentDescription =
                                     "Tambah lampiran",
                                 tint = StudyBlue,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(29.dp)
                             )
                         }
                     }
 
                     Spacer(
-                        modifier = Modifier.height(14.dp)
+                        modifier = Modifier.height(12.dp)
                     )
 
                     Text(
                         text = "Ketuk untuk menambahkan file",
-                        fontSize = 17.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = StudyNavy
                     )
 
                     Spacer(
-                        modifier = Modifier.height(5.dp)
+                        modifier = Modifier.height(4.dp)
                     )
 
                     Text(
@@ -625,28 +607,27 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .height(60.dp),
-                shape = RoundedCornerShape(30.dp),
+                    .height(56.dp),
+                shape = RoundedCornerShape(18.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = StudyBlue,
-                    disabledContainerColor =
-                        Color(0xFFB8C4D8)
+                    disabledContainerColor = Color(0xFFB8C4D8)
                 )
             ) {
 
                 Icon(
                     imageVector = Icons.Outlined.Save,
                     contentDescription = null,
-                    modifier = Modifier.size(23.dp)
+                    modifier = Modifier.size(21.dp)
                 )
 
                 Spacer(
-                    modifier = Modifier.width(10.dp)
+                    modifier = Modifier.width(9.dp)
                 )
 
                 Text(
                     text = "Simpan Tugas",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -691,7 +672,7 @@ private fun FormLabel(
     }
 
     Spacer(
-        modifier = Modifier.height(8.dp)
+        modifier = Modifier.height(7.dp)
     )
 }
 
@@ -711,14 +692,14 @@ private fun PriorityButton(
 
     Card(
         modifier = modifier
-            .height(60.dp)
+            .height(56.dp)
             .clickable {
                 onClick()
             },
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (selected) {
-                color.copy(alpha = 0.16f)
+                color.copy(alpha = 0.12f)
             } else {
                 Color.White
             }
@@ -734,20 +715,28 @@ private fun PriorityButton(
 
         Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalArrangement =
-                Arrangement.Center,
-            verticalAlignment =
-                Alignment.CenterVertically
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
+            if (selected) {
+
+                Text(
+                    text = "✓",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                )
+
+                Spacer(
+                    modifier = Modifier.width(6.dp)
+                )
+            }
+
             Text(
-                text = if (selected) {
-                    "✓  $text"
-                } else {
-                    "●  $text"
-                },
+                text = text,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = if (selected) {
                     color
                 } else {
@@ -773,11 +762,11 @@ private fun StatusButton(
 
     Card(
         modifier = modifier
-            .height(58.dp)
+            .height(56.dp)
             .clickable {
                 onClick()
             },
-        shape = RoundedCornerShape(30.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (selected) {
                 StudyBlue
@@ -787,7 +776,7 @@ private fun StatusButton(
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (selected) {
-                3.dp
+                2.dp
             } else {
                 1.dp
             }
@@ -796,18 +785,26 @@ private fun StatusButton(
 
         Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalArrangement =
-                Arrangement.Center,
-            verticalAlignment =
-                Alignment.CenterVertically
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
+            if (selected) {
+
+                Text(
+                    text = "✓",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                Spacer(
+                    modifier = Modifier.width(5.dp)
+                )
+            }
+
             Text(
-                text = if (selected) {
-                    "✓  $text"
-                } else {
-                    text
-                },
+                text = text,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (selected) {
