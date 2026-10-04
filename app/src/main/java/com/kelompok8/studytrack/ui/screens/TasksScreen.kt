@@ -201,7 +201,7 @@ fun TasksScreen(
                 ) { task ->
                     TaskCard(
                         task = task,
-                        onClick = { onTaskClick(task.title) }
+                        onClick = { onTaskClick(task.id) }
                     )
                 }
 

@@ -5,11 +5,11 @@ import com.kelompok8.studytrack.data.models.UserProfile
 object UserRegulation {
 
     fun validateLoginCredentials(email: String, password: String): Boolean {
-        return email.isNotBlank() && email.contains("@") && password.length >= 4
+        return email.isNotBlank() && email.contains("@") && password.length >= 8
     }
 
     fun validateRegistrationData(name: String, email: String, password: String): Boolean {
-        return name.isNotBlank() && email.isNotBlank() && email.contains("@") && password.length >= 6
+        return name.isNotBlank() && email.isNotBlank() && email.contains("@") && password.length >= 8
     }
 
     fun validateProfileUpdate(

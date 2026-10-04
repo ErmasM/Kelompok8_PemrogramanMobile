@@ -42,7 +42,8 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 @Composable
 fun LoginScreen(
     onRegisterClick: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onPerformLogin: (email: String, password: String) -> Boolean = { e, p -> false }
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -166,11 +167,14 @@ fun LoginScreen(
         Button(
             onClick = {
                 if (isValid) {
-                    // Set email user
-                    UserData.currentUser = UserData.currentUser.copy(email = email)
-                    onLoginSuccess()
+                    val success = onPerformLogin(email, password)
+                    if (success) {
+                        onLoginSuccess()
+                    } else {
+                        errorMessage = "Email atau password tidak cocok."
+                    }
                 } else {
-                    errorMessage = "Email harus valid dan password minimal 4 karakter."
+                    errorMessage = "Email harus valid dan password minimal 8 karakter."
                 }
             },
             modifier = Modifier

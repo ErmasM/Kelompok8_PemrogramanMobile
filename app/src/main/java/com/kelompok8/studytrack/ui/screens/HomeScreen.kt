@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.kelompok8.studytrack.data.TaskData
 import com.kelompok8.studytrack.data.UserData
 import com.kelompok8.studytrack.data.models.Task
+import com.kelompok8.studytrack.data.models.UserProfile
 import com.kelompok8.studytrack.data.models.TaskStatus
 import com.kelompok8.studytrack.regulation.TaskRegulation
 import com.kelompok8.studytrack.ui.components.StudyTrackHeader
@@ -49,9 +50,9 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 fun HomeScreen(
     onNavigate: (String) -> Unit,
     onNotificationClick: () -> Unit,
-    tasks: List<Task> = TaskData.initialTasks
+    tasks: List<Task> = TaskData.initialTasks,
+    user: UserProfile = UserData.currentUser
 ) {
-    val user = UserData.currentUser
     val upcomingTasks = TaskRegulation.getUpcomingDeadlines(tasks).take(4)
 
     val totalTasks = tasks.size
@@ -281,7 +282,10 @@ fun HomeScreen(
             items = upcomingTasks,
             key = { it.id }
         ) { task ->
-            DeadlineCard(task = task)
+            DeadlineCard(
+                task = task,
+                onClick = { onNavigate("task_detail/${task.id}") }
+            )
         }
     }
 }
@@ -293,10 +297,13 @@ fun HomeScreen(
 
 @Composable
 private fun DeadlineCard(
-    task: Task
+    task: Task,
+    onClick: () -> Unit = {}
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface

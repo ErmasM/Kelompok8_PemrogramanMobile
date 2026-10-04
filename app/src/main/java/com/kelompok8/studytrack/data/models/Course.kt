@@ -1,5 +1,8 @@
 package com.kelompok8.studytrack.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Course(
     val id: String,
     val code: String,

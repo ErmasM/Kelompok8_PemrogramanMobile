@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -54,4 +55,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
+
+    // SurrealDB Kotlin SDK
+    implementation(libs.surrealdb)
+
+    // Kotlin Coroutines (Android)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Kotlin Serialization JSON
+    implementation(libs.kotlinx.serialization.json)
 }

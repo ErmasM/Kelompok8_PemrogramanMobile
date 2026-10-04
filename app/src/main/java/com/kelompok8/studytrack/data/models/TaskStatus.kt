@@ -1,5 +1,8 @@
 package com.kelompok8.studytrack.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class TaskStatus(val label: String) {
     NOT_STARTED("Belum Dimulai"),
     IN_PROGRESS("Sedang Dikerjakan"),

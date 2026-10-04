@@ -1,5 +1,8 @@
 package com.kelompok8.studytrack.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Task(
     val id: String = "",
     val subject: String,
@@ -17,7 +20,8 @@ data class Task(
     val dayOfMonth: Int = 16,
     val checklist: List<TaskChecklistItem> = emptyList(),
     val attachments: List<TaskAttachment> = emptyList(),
-    val submissionNote: String = ""
+    val submissionNote: String = "",
+    val submission: TaskSubmission? = null
 ) {
     val priorityLabel: String
         get() = priority.label

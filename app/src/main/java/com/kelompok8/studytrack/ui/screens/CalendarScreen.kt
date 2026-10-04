@@ -55,7 +55,8 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 fun CalendarScreen(
     onNotificationClick: () -> Unit,
     onProfileClick: () -> Unit,
-    tasks: List<Task> = TaskData.initialTasks
+    tasks: List<Task> = emptyList(),
+    onTaskClick: (String) -> Unit = {}
 ) {
     var selectedDay by remember { mutableIntStateOf(16) }
     val agendaTasks = TaskRegulation.getTasksForDay(tasks, selectedDay)
@@ -212,7 +213,10 @@ fun CalendarScreen(
             items = agendaTasks,
             key = { it.id }
         ) { task ->
-            CalendarTaskCard(task = task)
+            CalendarTaskCard(
+                task = task,
+                onClick = { onTaskClick(task.id) }
+            )
         }
 
         if (agendaTasks.isEmpty()) {
@@ -326,7 +330,10 @@ private fun LegendItem(color: Color, text: String) {
 }
 
 @Composable
-private fun CalendarTaskCard(task: Task) {
+private fun CalendarTaskCard(
+    task: Task,
+    onClick: () -> Unit = {}
+) {
     val accentColor = when (task.priority) {
         TaskPriority.HIGH -> Color(0xFFD32F2F)
         TaskPriority.MEDIUM -> StudyBlue
@@ -336,7 +343,9 @@ private fun CalendarTaskCard(task: Task) {
     val isDone = task.status == TaskStatus.COMPLETED
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface

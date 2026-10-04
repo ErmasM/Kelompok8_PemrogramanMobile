@@ -45,17 +45,44 @@ import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyNavy
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
+import com.kelompok8.studytrack.data.models.UserProfile
+
 @Composable
 fun EditProfileScreen(
     onBackClick: () -> Unit,
-    onSaveClick: () -> Unit
+    user: UserProfile = UserData.currentUser,
+    onSaveClick: (name: String, email: String, major: String, year: String, avatarUri: String?) -> Unit = { _, _, _, _, _ -> }
 ) {
-    val currentUser = UserData.currentUser
+    val context = LocalContext.current
+    var name by rememberSaveable { mutableStateOf(user.name) }
+    var email by rememberSaveable { mutableStateOf(user.email) }
+    var major by rememberSaveable { mutableStateOf(user.major) }
+    var year by rememberSaveable { mutableStateOf(user.year) }
+    var selectedAvatarUri by rememberSaveable { mutableStateOf(user.avatarUri) }
 
-    var name by rememberSaveable { mutableStateOf(currentUser.name) }
-    var email by rememberSaveable { mutableStateOf(currentUser.email) }
-    var major by rememberSaveable { mutableStateOf(currentUser.major) }
-    var year by rememberSaveable { mutableStateOf(currentUser.year) }
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: Exception) {
+                // Ignore if not persistable
+            }
+            selectedAvatarUri = it.toString()
+        }
+    }
 
     val isValid = UserRegulation.validateProfileUpdate(name, email, major, year)
 
@@ -90,8 +117,23 @@ fun EditProfileScreen(
             // PROFILE PHOTO
             // =========================
 
+            val avatarBitmap = remember(selectedAvatarUri) {
+                selectedAvatarUri?.let { uriString ->
+                    try {
+                        val uri = android.net.Uri.parse(uriString)
+                        context.contentResolver.openInputStream(uri)?.use { stream ->
+                            android.graphics.BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            }
+
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { photoPickerLauncher.launch("image/*") },
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -109,12 +151,21 @@ fun EditProfileScreen(
                             .background(Color(0xFFE8EBFF)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Person,
-                            contentDescription = "Foto Profil",
-                            tint = StudyBlue,
-                            modifier = Modifier.size(52.dp)
-                        )
+                        if (avatarBitmap != null) {
+                            Image(
+                                bitmap = avatarBitmap,
+                                contentDescription = "Foto Profil",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = "Foto Profil",
+                                tint = StudyBlue,
+                                modifier = Modifier.size(52.dp)
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -130,9 +181,9 @@ fun EditProfileScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "Foto profil dapat diubah nanti.",
+                            text = "Ketuk untuk memilih foto dari galeri.",
                             fontSize = 13.sp,
-                            color = StudyTextSecondary
+                            color = StudyBlue
                         )
                     }
                 }
@@ -214,13 +265,7 @@ fun EditProfileScreen(
             Button(
                 onClick = {
                     if (isValid) {
-                        UserData.currentUser = UserData.currentUser.copy(
-                            name = name,
-                            email = email,
-                            major = major,
-                            year = year
-                        )
-                        onSaveClick()
+                        onSaveClick(name, email, major, year, selectedAvatarUri)
                     }
                 },
                 enabled = isValid,

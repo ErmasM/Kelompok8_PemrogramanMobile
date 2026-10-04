@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,9 @@ import com.kelompok8.studytrack.ui.screens.RegisterScreen
 import com.kelompok8.studytrack.ui.screens.TaskDetailScreen
 import com.kelompok8.studytrack.ui.screens.TasksScreen
 import com.kelompok8.studytrack.ui.screens.WelcomeScreen
+import androidx.compose.runtime.collectAsState
+import com.kelompok8.studytrack.data.repository.AppRepository
+import com.kelompok8.studytrack.data.UserData
 
 
 object Routes {
@@ -59,7 +63,7 @@ object Routes {
 
     const val NOTIFICATIONS = "notifications"
 
-    const val TASK_DETAIL = "task_detail/{taskTitle}"
+    const val TASK_DETAIL = "task_detail/{taskId}"
 }
 
 
@@ -67,12 +71,35 @@ object Routes {
 fun AppNavigation() {
 
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     val backStackEntry by
     navController.currentBackStackEntryAsState()
 
     val currentRoute =
         backStackEntry?.destination?.route
+
+
+    // =========================================================
+    // AUTO-LOGIN: Cek sesi tersimpan saat aplikasi pertama dibuka
+    // =========================================================
+
+    LaunchedEffect(Unit) {
+        // 1. Tunggu inisialisasi koneksi SurrealDB & sync data awal
+        AppRepository.initializeSurrealDbAndWait()
+
+        // 2. Cek sesi tersimpan → auto-login jika ada
+        val hasSavedSession = AppRepository.checkSavedSession(context)
+        if (hasSavedSession) {
+            // Sesi valid → langsung ke Home, hapus semua stack auth
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.WELCOME) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+        // Jika tidak ada sesi → tetap di Welcome (startDestination default)
+    }
 
 
     // =========================================================
@@ -83,26 +110,15 @@ fun AppNavigation() {
         mutableStateOf(false)
     }
 
-    val context = LocalContext.current
-    val activity = context as? Activity
-
 
     // =========================================================
-    // TASK DATA (SINGLE SOURCE OF TRUTH)
+    // SINGLE SOURCE OF TRUTH (REACTIVE STATEFLOW STREAMS)
     // =========================================================
 
-    var tasks by remember {
-        mutableStateOf(TaskData.initialTasks)
-    }
-
-
-    // =========================================================
-    // NOTIFICATION DATA (SINGLE SOURCE OF TRUTH)
-    // =========================================================
-
-    var notifications by remember {
-        mutableStateOf(NotificationData.initialNotifications)
-    }
+    val tasks by AppRepository.tasks.collectAsState()
+    val courses by AppRepository.courses.collectAsState()
+    val notifications by AppRepository.notifications.collectAsState()
+    val currentUser by AppRepository.currentUser.collectAsState()
 
 
     // =========================================================
@@ -325,6 +341,10 @@ fun AppNavigation() {
             // LOGIN
             // =================================================
 
+            // =================================================
+            // LOGIN
+            // =================================================
+
             composable(Routes.LOGIN) {
 
                 LoginScreen(
@@ -336,14 +356,17 @@ fun AppNavigation() {
                         )
                     },
 
+                    onPerformLogin = { email, password ->
+                        // Teruskan context agar sesi dapat disimpan ke SharedPreferences
+                        AppRepository.login(context, email, password)
+                    },
+
                     onLoginSuccess = {
 
                         navController.navigate(
                             Routes.HOME
                         ) {
 
-                            // Hapus Welcome, Register,
-                            // dan Login dari back stack
                             popUpTo(Routes.WELCOME) {
 
                                 inclusive = true
@@ -371,6 +394,11 @@ fun AppNavigation() {
                         )
                     },
 
+                    onPerformRegister = { name, email, password ->
+                        // Teruskan context agar sesi dapat disimpan ke SharedPreferences
+                        AppRepository.register(context, name, email, password)
+                    },
+
                     onRegisterSuccess = {
 
                         navController.navigate(
@@ -396,6 +424,10 @@ fun AppNavigation() {
 
                 HomeScreen(
 
+                    tasks = tasks,
+
+                    user = currentUser ?: UserData.currentUser,
+
                     onNavigate = { route ->
 
                         navController.navigate(route)
@@ -418,6 +450,8 @@ fun AppNavigation() {
             composable(Routes.COURSES) {
 
                 CoursesScreen(
+
+                    courses = courses,
 
                     onBackClick = {
 
@@ -449,10 +483,10 @@ fun AppNavigation() {
                         )
                     },
 
-                    onTaskClick = { taskTitle ->
+                    onTaskClick = { taskId ->
 
                         navController.navigate(
-                            "task_detail/${Uri.encode(taskTitle)}"
+                            "task_detail/$taskId"
                         )
                     }
                 )
@@ -467,6 +501,8 @@ fun AppNavigation() {
 
                 CalendarScreen(
 
+                    tasks = tasks,
+
                     onNotificationClick = {
 
                         navController.navigate(
@@ -478,6 +514,13 @@ fun AppNavigation() {
 
                         navController.navigate(
                             Routes.PROFILE
+                        )
+                    },
+
+                    onTaskClick = { taskId ->
+
+                        navController.navigate(
+                            "task_detail/$taskId"
                         )
                     }
                 )
@@ -491,6 +534,10 @@ fun AppNavigation() {
             composable(Routes.ANALYTICS) {
 
                 AnalyticsScreen(
+
+                    courses = courses,
+
+                    tasks = tasks,
 
                     onNotificationClick = {
 
@@ -510,6 +557,8 @@ fun AppNavigation() {
 
                 ProfileScreen(
 
+                    user = currentUser ?: UserData.currentUser,
+
                     onNotificationClick = {
 
                         navController.navigate(
@@ -522,6 +571,19 @@ fun AppNavigation() {
                         navController.navigate(
                             Routes.EDIT_PROFILE
                         )
+                    },
+
+                    onLogout = {
+                        // Hapus sesi dari SharedPreferences lalu kembali ke Welcome
+                        AppRepository.logout(context)
+                        navController.navigate(Routes.WELCOME) {
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+
+                    onUpdateTargetHours = { hours ->
+                        AppRepository.updateTargetStudyHours(hours)
                     }
                 )
             }
@@ -535,12 +597,16 @@ fun AppNavigation() {
 
                 EditProfileScreen(
 
+                    user = currentUser ?: UserData.currentUser,
+
                     onBackClick = {
 
                         navController.popBackStack()
                     },
 
-                    onSaveClick = {
+                    onSaveClick = { name, email, major, year, avatarUri ->
+
+                        AppRepository.updateProfile(name, email, major, year, avatarUri)
 
                         navController.popBackStack()
                     }
@@ -564,11 +630,13 @@ fun AppNavigation() {
                     notifications = notifications,
 
                     onMarkAsRead = { notificationId ->
-                        notifications = NotificationRegulation.markAsRead(notifications, notificationId)
+
+                        AppRepository.markNotificationAsRead(notificationId)
                     },
 
                     onMarkAllAsRead = {
-                        notifications = NotificationRegulation.markAllAsRead(notifications)
+
+                        AppRepository.markAllNotificationsAsRead()
                     }
                 )
             }
@@ -580,20 +648,15 @@ fun AppNavigation() {
 
             composable(Routes.TASK_DETAIL) { backStackEntry ->
 
-                val taskTitle =
-
+                val taskId =
                     backStackEntry
                         .arguments
-                        ?.getString("taskTitle")
-                        ?.let {
-                            Uri.decode(it)
-                        }
+                        ?.getString("taskId")
                         ?: ""
 
 
                 val task = tasks.find {
-
-                    it.title == taskTitle
+                    it.id == taskId
                 }
 
 
@@ -609,29 +672,27 @@ fun AppNavigation() {
                         },
 
                         onToggleTaskStatus = { taskId ->
-                            tasks = tasks.map {
-                                if (it.id == taskId) TaskRegulation.toggleTaskStatus(it) else it
-                            }
+
+                            AppRepository.toggleTaskStatus(taskId)
                         },
 
                         onToggleChecklistItem = { taskId, itemId ->
-                            tasks = tasks.map {
-                                if (it.id == taskId) TaskRegulation.toggleChecklistItem(it, itemId) else it
-                            }
+
+                            AppRepository.toggleChecklistItem(taskId, itemId)
                         },
 
-                        onAddAttachment = { taskId, fileName, fileType, fileSize ->
-                            tasks = tasks.map {
-                                if (it.id == taskId) TaskRegulation.addAttachmentToTask(it, fileName, fileSize, fileType) else it
-                            }
+                        onAddAttachment = { taskId, fileName, fileType, fileSize, fileUri ->
+
+                            AppRepository.addAttachmentToTask(taskId, fileName, fileType, fileSize, fileUri)
                         },
 
                         onDeleteTask = { taskId ->
-                            tasks = TaskRegulation.deleteTask(tasks, taskId)
+
+                            AppRepository.deleteTask(taskId)
                         }
                     )
                 }
             }
         }
     }
-}
+}

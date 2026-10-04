@@ -1,5 +1,8 @@
 package com.kelompok8.studytrack.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class TaskPriority(val label: String) {
     HIGH("Tinggi"),
     MEDIUM("Sedang"),

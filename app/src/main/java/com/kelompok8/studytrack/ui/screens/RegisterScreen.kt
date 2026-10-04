@@ -43,7 +43,8 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 @Composable
 fun RegisterScreen(
     onLoginClick: () -> Unit,
-    onRegisterSuccess: () -> Unit = {}
+    onRegisterSuccess: () -> Unit = {},
+    onPerformRegister: (name: String, email: String, password: String) -> Boolean = { n, e, p -> false }
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
@@ -160,7 +161,7 @@ fun RegisterScreen(
             },
             modifier = Modifier.fillMaxWidth(),
             label = { Text("Password") },
-            placeholder = { Text("Buat password (min 6 karakter)") },
+            placeholder = { Text("Buat password (min 8 karakter)") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
@@ -194,13 +195,14 @@ fun RegisterScreen(
         Button(
             onClick = {
                 if (isValid) {
-                    UserData.currentUser = UserData.currentUser.copy(
-                        name = name,
-                        email = email
-                    )
-                    onRegisterSuccess()
+                    val success = onPerformRegister(name, email, password)
+                    if (success) {
+                        onRegisterSuccess()
+                    } else {
+                        errorMessage = "Email sudah terdaftar. Silakan login."
+                    }
                 } else {
-                    errorMessage = "Nama wajib diisi, email harus valid, dan password minimal 6 karakter."
+                    errorMessage = "Nama wajib diisi, email harus valid, dan password minimal 8 karakter."
                 }
             },
             modifier = Modifier

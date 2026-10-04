@@ -38,6 +38,10 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,15 +62,69 @@ import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyNavy
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
+import android.content.Intent
+import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+
 @Composable
 fun TaskDetailScreen(
     task: Task,
     onBackClick: () -> Unit,
     onToggleTaskStatus: (String) -> Unit = {},
     onToggleChecklistItem: (taskId: String, itemId: String) -> Unit = { _, _ -> },
-    onAddAttachment: (taskId: String, fileName: String, fileType: String, fileSize: String) -> Unit = { _, _, _, _ -> },
+    onAddAttachment: (taskId: String, fileName: String, fileType: String, fileSize: String, fileUri: String?) -> Unit = { _, _, _, _, _ -> },
+    onSubmitAssignment: (taskId: String, note: String, attachmentUri: String?, attachmentName: String?) -> Unit = { _, _, _, _ -> },
     onDeleteTask: (String) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    var showSubmitDialog by remember { mutableStateOf(false) }
+    var submissionNoteInput by remember { mutableStateOf("") }
+
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { fileUri ->
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    fileUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: Exception) {
+                // Ignore if not persistable
+            }
+
+            var fileName = "Dokumen_Tugas.pdf"
+            var fileSizeStr = "1.0 MB"
+            var fileType = "PDF"
+
+            context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (cursor.moveToFirst()) {
+                    if (nameIndex != -1) fileName = cursor.getString(nameIndex) ?: fileName
+                    if (sizeIndex != -1) {
+                        val bytes = cursor.getLong(sizeIndex)
+                        fileSizeStr = when {
+                            bytes >= 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
+                            bytes >= 1024 -> String.format("%d KB", bytes / 1024)
+                            else -> "$bytes B"
+                        }
+                    }
+                }
+            }
+
+            if (fileName.endsWith(".pdf", ignoreCase = true)) {
+                fileType = "PDF"
+            } else if (fileName.contains(".")) {
+                fileType = fileName.substringAfterLast(".").uppercase()
+            }
+
+            onAddAttachment(task.id, fileName, fileType, fileSizeStr, fileUri.toString())
+        }
+    }
     val isDone = task.status == TaskStatus.COMPLETED
 
     val statusColor = if (isDone) StudyGreen else StudyBlue
@@ -437,12 +495,7 @@ fun TaskDetailScreen(
                             fontWeight = FontWeight.Medium,
                             color = StudyBlue,
                             modifier = Modifier.clickable {
-                                onAddAttachment(
-                                    task.id,
-                                    "Berkas_Tugas_${task.attachments.size + 1}.pdf",
-                                    "PDF",
-                                    "2.1 MB"
-                                )
+                                documentPickerLauncher.launch("*/*")
                             }
                         )
                     }
@@ -521,7 +574,7 @@ fun TaskDetailScreen(
         }
 
         // =====================================================
-        // ACTION BUTTON
+        // ACTION BUTTONS & SUBMISSION DIALOG
         // =====================================================
 
         item {
@@ -545,7 +598,7 @@ fun TaskDetailScreen(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = if (isDone) "Mark as In Progress" else "Mark as Completed",
+                        text = if (isDone) "Tandai Belum Selesai" else "Tandai Selesai",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -558,7 +611,7 @@ fun TaskDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { onToggleTaskStatus(task.id) },
+                        onClick = { showSubmitDialog = true },
                         modifier = Modifier
                             .weight(1f)
                             .height(58.dp),
@@ -572,7 +625,7 @@ fun TaskDetailScreen(
 
                         Spacer(modifier = Modifier.width(6.dp))
 
-                        Text(text = "Ubah Status", fontSize = 16.sp)
+                        Text(text = if (task.submission != null) "Tugas Terkirim" else "Kirim Tugas", fontSize = 16.sp)
                     }
 
                     Button(
@@ -590,7 +643,7 @@ fun TaskDetailScreen(
                         )
                     ) {
                         Text(
-                            text = "Delete",
+                            text = "Hapus",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -598,6 +651,56 @@ fun TaskDetailScreen(
                 }
             }
         }
+    }
+
+    if (showSubmitDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showSubmitDialog = false },
+            title = {
+                Text(
+                    text = "Kirim Tugas / Submisi",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Masukkan catatan pengiriman tugas atau keterangan berkas:",
+                        fontSize = 14.sp,
+                        color = StudyTextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    androidx.compose.material3.OutlinedTextField(
+                        value = submissionNoteInput,
+                        onValueChange = { submissionNoteInput = it },
+                        label = { Text("Catatan Pengiriman") },
+                        placeholder = { Text("misal: Laporan PDF beserta lampiran source code ZIP") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        showSubmitDialog = false
+                        onSubmitAssignment(task.id, submissionNoteInput, task.attachments.lastOrNull()?.fileUri, task.attachments.lastOrNull()?.fileName)
+                        Toast.makeText(context, "Tugas berhasil dikirim!", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = StudyGreen)
+                ) {
+                    Text("Kirim Sekarang")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showSubmitDialog = false }
+                ) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 }
 
@@ -642,6 +745,50 @@ private fun ChecklistItemView(
 
 @Composable
 private fun AttachmentItemView(attachment: TaskAttachment) {
+    val context = LocalContext.current
+    val openFileAction = {
+        if (attachment.fileUri != null) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        android.net.Uri.parse(attachment.fileUri),
+                        if (attachment.fileType.equals("PDF", ignoreCase = true)) "application/pdf" else "*/*"
+                    )
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Tidak ada aplikasi yang kompatibel untuk membuka file ini.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "File '${attachment.fileName}' adalah berkas bawaan.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val downloadFileAction = {
+        if (attachment.fileUri != null) {
+            try {
+                val uri = android.net.Uri.parse(attachment.fileUri)
+                val inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream != null) {
+                    val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+                    val destFile = java.io.File(downloadsDir, attachment.fileName)
+                    destFile.outputStream().use { output ->
+                        inputStream.copyTo(output)
+                    }
+                    inputStream.close()
+                    Toast.makeText(context, "Berkas berhasil diunduh ke folder Downloads: ${attachment.fileName}", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(context, "Berkas siap diunduh.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Berkas '${attachment.fileName}' tersimpan di penyimpanan aplikasi.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "Berkas '${attachment.fileName}' adalah berkas sistem.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -686,7 +833,8 @@ private fun AttachmentItemView(attachment: TaskAttachment) {
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(Color.White)
+                .clickable { downloadFileAction() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -703,7 +851,8 @@ private fun AttachmentItemView(attachment: TaskAttachment) {
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(Color.White)
+                .clickable { openFileAction() },
             contentAlignment = Alignment.Center
         ) {
             Icon(

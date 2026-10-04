@@ -1,5 +1,10 @@
 package com.kelompok8.studytrack.ui.screens
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +42,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,8 +67,15 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 fun ProfileScreen(
     onNotificationClick: () -> Unit,
     onEditProfileClick: () -> Unit,
+    onLogout: () -> Unit = {},
+    onUpdateTargetHours: (Int) -> Unit = {},
     user: UserProfile = UserData.currentUser
 ) {
+    var showTargetDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+    var showSupportDialog by remember { mutableStateOf(false) }
+    var targetHoursInput by remember(user.targetWeeklyStudyHours) { mutableStateOf(user.targetWeeklyStudyHours.toString()) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -98,7 +113,10 @@ fun ProfileScreen(
         }
 
         item {
-            PreferencesCard(user = user)
+            PreferencesCard(
+                user = user,
+                onTargetClick = { showTargetDialog = true }
+            )
         }
 
         item {
@@ -106,12 +124,107 @@ fun ProfileScreen(
         }
 
         item {
-            SupportCard()
+            SupportCard(
+                onSupportClick = { showSupportDialog = true },
+                onAboutClick = { showAboutDialog = true }
+            )
+        }
+
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onLogout() },
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEAEA)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Keluar dari Akun (Logout)",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFD32F2F)
+                    )
+                }
+            }
         }
 
         item {
             Spacer(modifier = Modifier.height(4.dp))
         }
+    }
+
+    if (showTargetDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showTargetDialog = false },
+            title = { Text("Atur Target Jam Belajar", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text("Target jam belajar mingguan (jam):")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    androidx.compose.material3.OutlinedTextField(
+                        value = targetHoursInput,
+                        onValueChange = { targetHoursInput = it },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        showTargetDialog = false
+                        targetHoursInput.toIntOrNull()?.let { hours ->
+                            onUpdateTargetHours(hours)
+                        }
+                    }
+                ) {
+                    Text("Simpan")
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showTargetDialog = false }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
+
+    if (showAboutDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showAboutDialog = false },
+            title = { Text("Tentang StudyTrack", fontWeight = FontWeight.Bold) },
+            text = {
+                Text("StudyTrack v1.0.0\n\nAplikasi pengelolaan tugas dan jadwal perkuliahan mahasiswa berbasis Jetpack Compose dan SurrealDB Cloud.")
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(onClick = { showAboutDialog = false }) {
+                    Text("Tutup")
+                }
+            }
+        )
+    }
+
+    if (showSupportDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showSupportDialog = false },
+            title = { Text("Bantuan & Dukungan", fontWeight = FontWeight.Bold) },
+            text = {
+                Text("Pusat Bantuan Mahasiswa:\n\nEmail: support@studytrack.unsoed.ac.id\nWhatsApp: +62 812-3456-7890\n\nUntuk kendala sinkronisasi SurrealDB, pastikan koneksi internet terhubung.")
+            },
+            confirmButton = {
+                androidx.compose.material3.Button(onClick = { showSupportDialog = false }) {
+                    Text("Tutup")
+                }
+            }
+        )
     }
 }
 
@@ -131,6 +244,20 @@ private fun ProfileCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val context = LocalContext.current
+                val avatarBitmap = remember(user.avatarUri) {
+                    user.avatarUri?.let { uriString ->
+                        try {
+                            val uri = android.net.Uri.parse(uriString)
+                            context.contentResolver.openInputStream(uri)?.use { stream ->
+                                android.graphics.BitmapFactory.decodeStream(stream)?.asImageBitmap()
+                            }
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
                 Box(
                     modifier = Modifier
                         .size(108.dp)
@@ -138,12 +265,21 @@ private fun ProfileCard(
                         .background(Color(0xFFE8EBFF)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.AccountCircle,
-                        contentDescription = "Foto Profil",
-                        tint = StudyBlue,
-                        modifier = Modifier.size(82.dp)
-                    )
+                    if (avatarBitmap != null) {
+                        Image(
+                            bitmap = avatarBitmap,
+                            contentDescription = "Foto Profil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.AccountCircle,
+                            contentDescription = "Foto Profil",
+                            tint = StudyBlue,
+                            modifier = Modifier.size(82.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(18.dp))
@@ -373,7 +509,10 @@ private fun SectionTitle(title: String) {
 }
 
 @Composable
-private fun PreferencesCard(user: UserProfile) {
+private fun PreferencesCard(
+    user: UserProfile,
+    onTargetClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -387,7 +526,8 @@ private fun PreferencesCard(user: UserProfile) {
                 icon = Icons.Outlined.Timer,
                 title = "Target Belajar",
                 description = "Atur target jam belajar mingguan",
-                badge = "${user.targetWeeklyStudyHours} jam/minggu"
+                badge = "${user.targetWeeklyStudyHours} jam/minggu",
+                onClick = onTargetClick
             )
 
             MenuDivider()
@@ -419,7 +559,10 @@ private fun PreferencesCard(user: UserProfile) {
 }
 
 @Composable
-private fun SupportCard() {
+private fun SupportCard(
+    onSupportClick: () -> Unit = {},
+    onAboutClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -432,7 +575,8 @@ private fun SupportCard() {
             ProfileMenuItem(
                 icon = Icons.Outlined.HelpOutline,
                 title = "Bantuan & Dukungan",
-                description = "Panduan mahasiswa, FAQ, dan kontak"
+                description = "Panduan mahasiswa, FAQ, dan kontak",
+                onClick = onSupportClick
             )
 
             MenuDivider()
@@ -440,7 +584,8 @@ private fun SupportCard() {
             ProfileMenuItem(
                 icon = Icons.Outlined.Info,
                 title = "Tentang StudyTrack",
-                description = "Versi 1.0.0 • Kebijakan Privasi"
+                description = "Versi 1.0.0 • Kebijakan Privasi",
+                onClick = onAboutClick
             )
         }
     }
@@ -451,11 +596,13 @@ private fun ProfileMenuItem(
     icon: ImageVector,
     title: String,
     description: String,
-    badge: String? = null
+    badge: String? = null,
+    onClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(vertical = 14.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

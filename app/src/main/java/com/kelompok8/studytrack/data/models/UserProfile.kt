@@ -1,9 +1,14 @@
 package com.kelompok8.studytrack.data.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class UserProfile(
-    val id: String = "1",
+    val id: String = "usr_101",
     val name: String = "Ermas",
     val email: String = "ermas@student.unsoed.ac.id",
+    val passwordHash: String = "",
+    val avatarUri: String? = null,
     val major: String = "Informatika",
     val year: String = "2024",
     val semester: String = "Semester 5",
