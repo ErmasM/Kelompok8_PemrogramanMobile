@@ -9,25 +9,33 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.data.UserData
+import com.kelompok8.studytrack.regulation.UserRegulation
 import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
@@ -36,9 +44,11 @@ fun LoginScreen(
     onRegisterClick: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val emailState = rememberTextFieldState()
-    val passwordState = rememberTextFieldState()
+    val isValid = UserRegulation.validateLoginCredentials(email, password)
 
     Column(
         modifier = Modifier
@@ -48,7 +58,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         // =========================
         // LOGO
         // =========================
@@ -60,48 +69,42 @@ fun LoginScreen(
             tint = StudyBlue
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // =========================
         // TITLE
         // =========================
 
         Text(
-            text = "Welcome Back!",
-            fontSize = 30.sp,
+            text = "Selamat Datang Kembali!",
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Login untuk melanjutkan perjalanan belajarmu",
+            text = "Login untuk mengelola tugas dan perkuliahanmu",
             fontSize = 15.sp,
             color = StudyTextSecondary
         )
 
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
         // =========================
         // EMAIL
         // =========================
 
         OutlinedTextField(
-            state = emailState,
+            value = email,
+            onValueChange = {
+                email = it
+                errorMessage = null
+            },
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Email")
-            },
-            placeholder = {
-                Text("contoh@email.com")
-            },
+            label = { Text("Email Mahasiswa") },
+            placeholder = { Text("contoh@student.unsoed.ac.id") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
@@ -110,37 +113,51 @@ fun LoginScreen(
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email
-            )
+            ),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // =========================
         // PASSWORD
         // =========================
 
-        OutlinedSecureTextField(
-            state = passwordState,
+        OutlinedTextField(
+            value = password,
+            onValueChange = {
+                password = it
+                errorMessage = null
+            },
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Password")
-            },
-            placeholder = {
-                Text("Masukkan password")
-            },
+            label = { Text("Password") },
+            placeholder = { Text("Masukkan password") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = "Password"
                 )
-            }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(
-            modifier = Modifier.height(28.dp)
-        )
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = errorMessage!!,
+                color = Color(0xFFD32F2F),
+                fontSize = 13.sp,
+                modifier = Modifier.align(Alignment.Start)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
 
         // =========================
         // LOGIN BUTTON
@@ -148,11 +165,22 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                onLoginSuccess()
+                if (isValid) {
+                    // Set email user
+                    UserData.currentUser = UserData.currentUser.copy(email = email)
+                    onLoginSuccess()
+                } else {
+                    errorMessage = "Email harus valid dan password minimal 4 karakter."
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = StudyBlue,
+                contentColor = Color.White
+            )
         ) {
             Text(
                 text = "Login",
@@ -161,9 +189,7 @@ fun LoginScreen(
             )
         }
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(modifier = Modifier.height(20.dp))
 
         // =========================
         // REGISTER
@@ -173,9 +199,7 @@ fun LoginScreen(
             text = "Belum punya akun? Daftar",
             fontSize = 15.sp,
             color = StudyBlue,
-            modifier = Modifier.clickable(
-                onClick = onRegisterClick
-            )
+            modifier = Modifier.clickable(onClick = onRegisterClick)
         )
     }
 }

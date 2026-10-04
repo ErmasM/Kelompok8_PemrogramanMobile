@@ -9,37 +9,48 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.data.UserData
+import com.kelompok8.studytrack.regulation.UserRegulation
 import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
 fun RegisterScreen(
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onRegisterSuccess: () -> Unit = {}
 ) {
+    var name by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val nameState = rememberTextFieldState()
-    val emailState = rememberTextFieldState()
-    val passwordState = rememberTextFieldState()
+    val isValid = UserRegulation.validateRegistrationData(name, email, password)
 
     Column(
         modifier = Modifier
@@ -61,73 +72,67 @@ fun RegisterScreen(
             tint = StudyBlue
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // =========================
         // TITLE
         // =========================
 
         Text(
-            text = "Create Account",
-            fontSize = 30.sp,
+            text = "Buat Akun Baru",
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Start your study journey with StudyTrack",
+            text = "Mulai kelola perkuliahan dan tugasmu dengan StudyTrack",
             fontSize = 15.sp,
             color = StudyTextSecondary
         )
 
-        Spacer(
-            modifier = Modifier.height(32.dp)
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
         // =========================
         // FULL NAME
         // =========================
 
         OutlinedTextField(
-            state = nameState,
+            value = name,
+            onValueChange = {
+                name = it
+                errorMessage = null
+            },
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Full Name")
-            },
-            placeholder = {
-                Text("Enter your name")
-            },
+            label = { Text("Nama Lengkap") },
+            placeholder = { Text("Masukkan nama lengkap") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Person,
-                    contentDescription = "Name"
+                    contentDescription = "Nama"
                 )
-            }
+            },
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // =========================
         // EMAIL
         // =========================
 
         OutlinedTextField(
-            state = emailState,
+            value = email,
+            onValueChange = {
+                email = it
+                errorMessage = null
+            },
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Email")
-            },
-            placeholder = {
-                Text("example@email.com")
-            },
+            label = { Text("Email Mahasiswa") },
+            placeholder = { Text("contoh@student.unsoed.ac.id") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
@@ -136,37 +141,51 @@ fun RegisterScreen(
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email
-            )
+            ),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         // =========================
         // PASSWORD
         // =========================
 
-        OutlinedSecureTextField(
-            state = passwordState,
+        OutlinedTextField(
+            value = password,
+            onValueChange = {
+                password = it
+                errorMessage = null
+            },
             modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text("Password")
-            },
-            placeholder = {
-                Text("Create a password")
-            },
+            label = { Text("Password") },
+            placeholder = { Text("Buat password (min 6 karakter)") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = "Password"
                 )
-            }
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
         )
 
-        Spacer(
-            modifier = Modifier.height(28.dp)
-        )
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = errorMessage!!,
+                color = Color(0xFFD32F2F),
+                fontSize = 13.sp,
+                modifier = Modifier.align(Alignment.Start)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
 
         // =========================
         // REGISTER BUTTON
@@ -174,34 +193,43 @@ fun RegisterScreen(
 
         Button(
             onClick = {
-                // Nanti dihubungkan ke proses register
+                if (isValid) {
+                    UserData.currentUser = UserData.currentUser.copy(
+                        name = name,
+                        email = email
+                    )
+                    onRegisterSuccess()
+                } else {
+                    errorMessage = "Nama wajib diisi, email harus valid, dan password minimal 6 karakter."
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = StudyBlue,
+                contentColor = Color.White
+            )
         ) {
             Text(
-                text = "Create Account",
+                text = "Buat Akun",
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold
             )
         }
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(modifier = Modifier.height(20.dp))
 
         // =========================
         // LOGIN
         // =========================
 
         Text(
-            text = "Already have an account? Login",
+            text = "Sudah punya akun? Login",
             fontSize = 15.sp,
             color = StudyBlue,
-            modifier = Modifier.clickable(
-                onClick = onLoginClick
-            )
+            modifier = Modifier.clickable(onClick = onLoginClick)
         )
     }
 }

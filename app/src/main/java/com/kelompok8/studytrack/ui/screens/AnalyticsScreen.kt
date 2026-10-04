@@ -15,23 +15,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,15 +48,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.data.CourseData
+import com.kelompok8.studytrack.data.TaskData
+import com.kelompok8.studytrack.data.models.Course
+import com.kelompok8.studytrack.data.models.Task
+import com.kelompok8.studytrack.data.models.TaskStatus
+import com.kelompok8.studytrack.regulation.TaskRegulation
+import com.kelompok8.studytrack.ui.components.StudyTrackHeader
 import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyNavy
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
-import androidx.compose.foundation.clickable
+
 @Composable
 fun AnalyticsScreen(
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    courses: List<Course> = CourseData.initialCourses,
+    tasks: List<Task> = TaskData.initialTasks
 ) {
+    val completedCount = TaskRegulation.countTasksByStatus(tasks, TaskStatus.COMPLETED)
+    val inProgressCount = TaskRegulation.countTasksByStatus(tasks, TaskStatus.IN_PROGRESS)
+    val notStartedCount = TaskRegulation.countTasksByStatus(tasks, TaskStatus.NOT_STARTED)
+    val completionPercentage = TaskRegulation.calculateCompletionPercentage(tasks)
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -69,177 +83,69 @@ fun AnalyticsScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // ====================================================
+        // HEADER
+        // ====================================================
 
         item {
-            AnalyticsHeader(
-                onNotificationClick = onNotificationClick
+            StudyTrackHeader(
+                title = "Statistik",
+                logoIcon = Icons.Outlined.MenuBook,
+                onNotificationClick = onNotificationClick,
+                onProfileClick = {},
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
             )
         }
+
+        // ====================================================
+        // OVERALL COMPLETION
+        // ====================================================
+
         item {
-            OverallCompletionCard()
+            OverallCompletionCard(
+                completionPercentage = completionPercentage,
+                completedCount = completedCount,
+                inProgressCount = inProgressCount,
+                notStartedCount = notStartedCount
+            )
         }
+
+        // ====================================================
+        // ACTIVITY
+        // ====================================================
 
         item {
             ActivityCard()
         }
 
+        // ====================================================
+        // PROGRESS BY COURSE HEADER
+        // ====================================================
+
         item {
             ProgressByCourseHeader()
         }
 
-        item {
-            CourseProgressCard(
-                icon = Icons.Outlined.Lock,
-                title = "Cryptography",
-                completed = "3 dari 4 tugas selesai",
-                progress = 0.75f,
-                percentage = "75%",
-                status = "✓ Sesuai Target",
-                statusColor = StudyGreen,
-                iconBackground = Color(0xFFD9E7FF)
-            )
-        }
+        // ====================================================
+        // PROGRESS BY COURSE LIST (COLLECTION)
+        // ====================================================
 
-        item {
-            CourseProgressCard(
-                icon = Icons.Outlined.Palette,
-                title = "UI/UX Design",
-                completed = "4 dari 5 tugas selesai",
-                progress = 0.80f,
-                percentage = "80%",
-                status = "☆ Progres Terbaik",
-                statusColor = StudyGreen,
-                iconBackground = Color(0xFFBFF5DF)
-            )
-        }
-
-        item {
-            CourseProgressCard(
-                icon = Icons.Outlined.Storage,
-                title = "Database Systems",
-                completed = "3 dari 5 tugas selesai",
-                progress = 0.60f,
-                percentage = "60%",
-                status = "◷ Stabil",
-                statusColor = StudyTextSecondary,
-                iconBackground = Color(0xFFD9E7FF)
-            )
-        }
-
-        item {
-            CourseProgressCard(
-                icon = Icons.Outlined.Terminal,
-                title = "Operating Systems",
-                completed = "2 dari 4 tugas selesai",
-                progress = 0.50f,
-                percentage = "50%",
-                status = "⌁ Setengah Jalan",
-                statusColor = StudyTextSecondary,
-                iconBackground = Color(0xFFE7E9FF)
-            )
-        }
-
-        item {
-            CourseProgressCard(
-                icon = Icons.Outlined.Code,
-                title = "Web Programming",
-                completed = "2 dari 5 tugas selesai",
-                progress = 0.40f,
-                percentage = "40%",
-                status = "⚑ Selanjutnya",
-                statusColor = StudyBlue,
-                iconBackground = Color(0xFFD9E7FF)
-            )
+        items(
+            items = courses,
+            key = { it.id }
+        ) { course ->
+            CourseProgressCard(course = course)
         }
     }
 }
 
-/* =========================
-   HEADER
-   ========================= */
-
 @Composable
-private fun AnalyticsHeader(
-    onNotificationClick: () -> Unit
+private fun OverallCompletionCard(
+    completionPercentage: Int,
+    completedCount: Int,
+    inProgressCount: Int,
+    notStartedCount: Int
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 2.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(StudyBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.MenuBook,
-                contentDescription = "StudyTrack",
-                tint = Color.White,
-                modifier = Modifier.size(23.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = "STUDYTRACK",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = StudyBlue,
-                letterSpacing = 0.5.sp
-            )
-
-            Text(
-                text = "Statistik",
-                fontSize = 23.sp,
-                fontWeight = FontWeight.Medium,
-                color = StudyNavy
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Outlined.NotificationsNone,
-            contentDescription = "Notifikasi",
-            tint = StudyNavy,
-            modifier = Modifier
-                .size(27.dp)
-                .clickable {
-                    onNotificationClick()
-                }
-        )
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(50))
-                .background(StudyBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Person,
-                contentDescription = "Profil",
-                tint = Color.White,
-                modifier = Modifier.size(23.dp)
-            )
-        }
-    }
-}
-
-/* =========================
-   OVERALL COMPLETION
-   ========================= */
-
-@Composable
-private fun OverallCompletionCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
@@ -254,7 +160,6 @@ private fun OverallCompletionCard() {
             modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top
@@ -283,10 +188,7 @@ private fun OverallCompletionCard() {
                     color = Color(0xFFE8F0FF)
                 ) {
                     Row(
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 6.dp
-                        ),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
@@ -299,7 +201,7 @@ private fun OverallCompletionCard() {
                         Spacer(modifier = Modifier.width(4.dp))
 
                         Text(
-                            text = "Semester 1",
+                            text = "Semester 5",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = StudyBlue
@@ -310,7 +212,7 @@ private fun OverallCompletionCard() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            CompletionRing()
+            CompletionRing(percentage = completionPercentage)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -337,8 +239,7 @@ private fun OverallCompletionCard() {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Tingkat penyelesaian semester 12% lebih tinggi dari " +
-                        "target tengah semester. Pertahankan progresmu!",
+                text = "Tingkat penyelesaian semester 12% lebih tinggi dari target tengah semester. Pertahankan progresmu!",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
@@ -354,7 +255,7 @@ private fun OverallCompletionCard() {
             ) {
                 StatBox(
                     modifier = Modifier.weight(1f),
-                    number = "7",
+                    number = completedCount.toString(),
                     label = "Selesai",
                     dotColor = StudyGreen,
                     icon = Icons.Outlined.CheckCircle
@@ -362,7 +263,7 @@ private fun OverallCompletionCard() {
 
                 StatBox(
                     modifier = Modifier.weight(1f),
-                    number = "4",
+                    number = inProgressCount.toString(),
                     label = "Sedang Dikerjakan",
                     dotColor = StudyBlue,
                     icon = Icons.Outlined.MoreHoriz
@@ -377,7 +278,7 @@ private fun OverallCompletionCard() {
             ) {
                 StatBox(
                     modifier = Modifier.weight(1f),
-                    number = "1",
+                    number = notStartedCount.toString(),
                     label = "Belum Dimulai",
                     dotColor = Color(0xFF7A8190),
                     icon = Icons.Outlined.Timer
@@ -396,22 +297,17 @@ private fun OverallCompletionCard() {
     }
 }
 
-/* =========================
-   CIRCULAR PROGRESS
-   ========================= */
-
 @Composable
-private fun CompletionRing() {
+private fun CompletionRing(percentage: Int) {
+    val sweepAngle = (percentage / 100f) * 360f
+
     Box(
         modifier = Modifier.size(160.dp),
         contentAlignment = Alignment.Center
     ) {
-        Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 14.dp.toPx()
             val diameter = size.minDimension - strokeWidth
-
             val topLeft = Offset(
                 x = (size.width - diameter) / 2,
                 y = (size.height - diameter) / 2
@@ -433,7 +329,7 @@ private fun CompletionRing() {
             drawArc(
                 color = StudyBlue,
                 startAngle = -90f,
-                sweepAngle = 208.8f,
+                sweepAngle = sweepAngle,
                 useCenter = false,
                 topLeft = topLeft,
                 size = Size(diameter, diameter),
@@ -448,7 +344,7 @@ private fun CompletionRing() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "58%",
+                text = "$percentage%",
                 fontSize = 38.sp,
                 fontWeight = FontWeight.Bold,
                 color = StudyNavy
@@ -463,10 +359,6 @@ private fun CompletionRing() {
         }
     }
 }
-
-/* =========================
-   STAT BOX
-   ========================= */
 
 @Composable
 private fun StatBox(
@@ -502,11 +394,7 @@ private fun StatBox(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (numberColor == StudyGreen) {
-                        StudyGreen
-                    } else {
-                        StudyBlue
-                    },
+                    tint = if (numberColor == StudyGreen) StudyGreen else StudyBlue,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -529,10 +417,6 @@ private fun StatBox(
         }
     }
 }
-
-/* =========================
-   ACTIVITY
-   ========================= */
 
 @Composable
 private fun ActivityCard() {
@@ -576,10 +460,7 @@ private fun ActivityCard() {
                 ) {
                     Text(
                         text = "Minggu Ini",
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 7.dp
-                        ),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = StudyTextSecondary
@@ -616,31 +497,10 @@ private fun ActivityCard() {
     }
 }
 
-/* =========================
-   ACTIVITY CHART
-   ========================= */
-
 @Composable
 private fun ActivityChart() {
-    val values = listOf(
-        0.55f,
-        0.82f,
-        1.00f,
-        0.72f,
-        0.95f,
-        0.45f,
-        0.65f
-    )
-
-    val labels = listOf(
-        "S",
-        "S",
-        "R",
-        "K",
-        "J",
-        "S",
-        "M"
-    )
+    val values = listOf(0.55f, 0.82f, 1.00f, 0.72f, 0.95f, 0.45f, 0.65f)
+    val labels = listOf("S", "S", "R", "K", "J", "S", "M")
 
     Row(
         modifier = Modifier
@@ -661,16 +521,12 @@ private fun ActivityChart() {
                     ) {
                         Text(
                             text = "Tertinggi",
-                            modifier = Modifier.padding(
-                                horizontal = 9.dp,
-                                vertical = 5.dp
-                            ),
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                     }
-
                     Spacer(modifier = Modifier.height(8.dp))
                 } else {
                     Spacer(modifier = Modifier.height(29.dp))
@@ -680,19 +536,8 @@ private fun ActivityChart() {
                     modifier = Modifier
                         .width(34.dp)
                         .height((105 * value).dp)
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 9.dp,
-                                topEnd = 9.dp
-                            )
-                        )
-                        .background(
-                            if (index == 2) {
-                                StudyBlue
-                            } else {
-                                Color(0xFFD1E0F8)
-                            }
-                        )
+                        .clip(RoundedCornerShape(topStart = 9.dp, topEnd = 9.dp))
+                        .background(if (index == 2) StudyBlue else Color(0xFFD1E0F8))
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -700,25 +545,13 @@ private fun ActivityChart() {
                 Text(
                     text = labels[index],
                     fontSize = 13.sp,
-                    fontWeight = if (index == 2) {
-                        FontWeight.Bold
-                    } else {
-                        FontWeight.Normal
-                    },
-                    color = if (index == 2) {
-                        StudyBlue
-                    } else {
-                        Color(0xFF4B5565)
-                    }
+                    fontWeight = if (index == 2) FontWeight.Bold else FontWeight.Normal,
+                    color = if (index == 2) StudyBlue else Color(0xFF4B5565)
                 )
             }
         }
     }
 }
-
-/* =========================
-   PROGRESS BY COURSE
-   ========================= */
 
 @Composable
 private fun ProgressByCourseHeader() {
@@ -742,128 +575,104 @@ private fun ProgressByCourseHeader() {
             fontWeight = FontWeight.Medium,
             color = StudyNavy
         )
-
-        Text(
-            text = "5 Mata Kuliah Aktif",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = StudyTextSecondary
-        )
     }
 }
 
-/* =========================
-   COURSE PROGRESS CARD
-   ========================= */
-
 @Composable
-private fun CourseProgressCard(
-    icon: ImageVector,
-    title: String,
-    completed: String,
-    progress: Float,
-    percentage: String,
-    status: String,
-    statusColor: Color,
-    iconBackground: Color
-) {
+private fun CourseProgressCard(course: Course) {
+    val icon = when (course.code) {
+        "INF-438" -> Icons.Outlined.Key
+        "INF-340" -> Icons.Outlined.Storage
+        "IMK-201" -> Icons.Outlined.Palette
+        else -> Icons.Outlined.Code
+    }
+
+    val (statusText, statusColor) = when {
+        course.progressPercentage >= 80 -> "☆ Progres Terbaik" to StudyGreen
+        course.progressPercentage >= 75 -> "✓ Sesuai Target" to StudyGreen
+        course.progressPercentage >= 60 -> "◷ Stabil" to StudyTextSecondary
+        course.progressPercentage >= 50 -> "⌁ Setengah Jalan" to StudyTextSecondary
+        else -> "⚑ Selanjutnya" to StudyBlue
+    }
+
+    val iconBg = when (course.code) {
+        "INF-340" -> Color(0xFFB9F8DF)
+        "IMK-201" -> Color(0xFFBFF5DF)
+        else -> Color(0xFFD9E7FF)
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(
-                horizontal = 18.dp,
-                vertical = 14.dp
-            )
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(43.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(iconBackground),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = StudyBlue,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = StudyNavy
-                    )
-
-                    Text(
-                        text = completed,
-                        fontSize = 12.sp,
-                        color = Color(0xFF4B5565)
-                    )
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = percentage,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (statusColor == StudyGreen) {
-                            StudyGreen
-                        } else {
-                            StudyBlue
-                        }
-                    )
-
-                    Text(
-                        text = status,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = statusColor
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFFE3E7FA))
+                    .size(54.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(iconBg),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = StudyBlue,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = course.name,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = StudyNavy,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "${course.progressPercentage}%",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = StudyBlue
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "${course.completedTasks} dari ${course.totalTasks} tugas selesai",
+                    fontSize = 12.sp,
+                    color = StudyTextSecondary
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    progress = { course.progressPercentage / 100f },
                     modifier = Modifier
-                        .fillMaxWidth(progress)
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(
-                            if (statusColor == StudyGreen) {
-                                StudyGreen
-                            } else {
-                                StudyBlue
-                            }
-                        )
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(10.dp)),
+                    color = StudyBlue,
+                    trackColor = Color(0xFFE8EBFF)
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = statusText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = statusColor
                 )
             }
         }

@@ -28,7 +28,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Card
@@ -47,6 +46,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.data.UserData
+import com.kelompok8.studytrack.data.models.UserProfile
+import com.kelompok8.studytrack.regulation.UserRegulation
+import com.kelompok8.studytrack.ui.components.StudyTrackHeader
 import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyNavy
@@ -54,7 +57,9 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
 fun ProfileScreen(
-    onNotificationClick: () -> Unit
+    onNotificationClick: () -> Unit,
+    onEditProfileClick: () -> Unit,
+    user: UserProfile = UserData.currentUser
 ) {
     LazyColumn(
         modifier = Modifier
@@ -68,19 +73,24 @@ fun ProfileScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         item {
-            ProfileHeader(
-                onNotificationClick = onNotificationClick
+            StudyTrackHeader(
+                title = "Profil",
+                onNotificationClick = onNotificationClick,
+                onProfileClick = {},
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
             )
         }
 
         item {
-            ProfileCard()
+            ProfileCard(
+                user = user,
+                onEditProfileClick = onEditProfileClick
+            )
         }
 
         item {
-            ProfileStats()
+            ProfileStats(user = user)
         }
 
         item {
@@ -88,7 +98,7 @@ fun ProfileScreen(
         }
 
         item {
-            PreferencesCard()
+            PreferencesCard(user = user)
         }
 
         item {
@@ -105,122 +115,22 @@ fun ProfileScreen(
     }
 }
 
-
-/* ============================================================
-   HEADER
-   ============================================================ */
-
 @Composable
-private fun ProfileHeader(
-    onNotificationClick: () -> Unit
+private fun ProfileCard(
+    user: UserProfile,
+    onEditProfileClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 2.dp,
-                vertical = 4.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(StudyBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.School,
-                contentDescription = "StudyTrack",
-                tint = Color.White,
-                modifier = Modifier.size(23.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = "STUDYTRACK",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = StudyBlue,
-                letterSpacing = 0.5.sp
-            )
-
-            Text(
-                text = "Profil",
-                fontSize = 23.sp,
-                fontWeight = FontWeight.Medium,
-                color = StudyNavy
-            )
-        }
-
-        // =========================
-        // NOTIFICATION
-        // =========================
-
-        Icon(
-            imageVector = Icons.Outlined.NotificationsNone,
-            contentDescription = "Notifikasi",
-            tint = StudyNavy,
-            modifier = Modifier
-                .size(27.dp)
-                .clickable {
-                    onNotificationClick()
-                }
-        )
-
-        Spacer(modifier = Modifier.width(14.dp))
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(StudyBlue),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Person,
-                contentDescription = "Profil",
-                tint = Color.White,
-                modifier = Modifier.size(23.dp)
-            )
-        }
-    }
-}
-
-
-/* ============================================================
-   PROFILE CARD
-   ============================================================ */
-
-@Composable
-private fun ProfileCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Box(
                     modifier = Modifier
                         .size(108.dp)
@@ -238,12 +148,9 @@ private fun ProfileCard() {
 
                 Spacer(modifier = Modifier.width(18.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Ermas",
+                        text = user.name,
                         fontSize = 27.sp,
                         fontWeight = FontWeight.Bold,
                         color = StudyNavy,
@@ -254,7 +161,7 @@ private fun ProfileCard() {
                     Spacer(modifier = Modifier.height(3.dp))
 
                     Text(
-                        text = "ermas@student.unsoed.ac.id",
+                        text = user.email,
                         fontSize = 14.sp,
                         color = StudyTextSecondary,
                         maxLines = 1,
@@ -268,10 +175,7 @@ private fun ProfileCard() {
                         color = Color(0xFFE0F5ED)
                     ) {
                         Row(
-                            modifier = Modifier.padding(
-                                horizontal = 10.dp,
-                                vertical = 6.dp
-                            ),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -284,7 +188,7 @@ private fun ProfileCard() {
                             Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
-                                text = "Informatika • 2024",
+                                text = UserRegulation.getStudentBio(user),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = StudyGreen
@@ -309,7 +213,6 @@ private fun ProfileCard() {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
@@ -324,7 +227,7 @@ private fun ProfileCard() {
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = "Status Mahasiswa Aktif",
+                        text = "Status Mahasiswa ${if (user.isStudentActive) "Aktif" else "Non-Aktif"}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF4B5565)
@@ -332,14 +235,12 @@ private fun ProfileCard() {
                 }
 
                 Surface(
+                    modifier = Modifier.clickable { onEditProfileClick() },
                     shape = RoundedCornerShape(22.dp),
                     color = Color(0xFFE9ECFF)
                 ) {
                     Row(
-                        modifier = Modifier.padding(
-                            horizontal = 14.dp,
-                            vertical = 9.dp
-                        ),
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
@@ -364,34 +265,20 @@ private fun ProfileCard() {
     }
 }
 
-
-/* ============================================================
-   PROFILE STATISTICS
-   ============================================================ */
-
 @Composable
-private fun ProfileStats() {
+private fun ProfileStats(user: UserProfile) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    horizontal = 12.dp,
-                    vertical = 20.dp
-                ),
+                .padding(horizontal = 12.dp, vertical = 20.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-
             ProfileStat(
                 icon = Icons.Outlined.CheckCircle,
                 value = "12",
@@ -412,7 +299,7 @@ private fun ProfileStats() {
 
             ProfileStat(
                 icon = Icons.Outlined.AutoAwesome,
-                value = "3.82",
+                value = user.cumulativeGpa.toString(),
                 label = "IPK KUMULATIF",
                 iconColor = StudyGreen,
                 valueColor = StudyGreen
@@ -433,10 +320,7 @@ private fun ProfileStat(
         modifier = Modifier.width(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -476,21 +360,11 @@ private fun VerticalDivider() {
     )
 }
 
-
-/* ============================================================
-   SECTION TITLE
-   ============================================================ */
-
 @Composable
-private fun SectionTitle(
-    title: String
-) {
+private fun SectionTitle(title: String) {
     Text(
         text = title,
-        modifier = Modifier.padding(
-            start = 4.dp,
-            top = 2.dp
-        ),
+        modifier = Modifier.padding(start = 4.dp, top = 2.dp),
         fontSize = 15.sp,
         fontWeight = FontWeight.Bold,
         color = StudyTextSecondary,
@@ -498,36 +372,22 @@ private fun SectionTitle(
     )
 }
 
-
-/* ============================================================
-   PREFERENCES
-   ============================================================ */
-
 @Composable
-private fun PreferencesCard() {
+private fun PreferencesCard(user: UserProfile) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-
         Column(
-            modifier = Modifier.padding(
-                horizontal = 14.dp,
-                vertical = 6.dp
-            )
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
-
             ProfileMenuItem(
                 icon = Icons.Outlined.Timer,
                 title = "Target Belajar",
                 description = "Atur target jam belajar mingguan",
-                badge = "24 jam/minggu"
+                badge = "${user.targetWeeklyStudyHours} jam/minggu"
             )
 
             MenuDivider()
@@ -558,31 +418,17 @@ private fun PreferencesCard() {
     }
 }
 
-
-/* ============================================================
-   SUPPORT
-   ============================================================ */
-
 @Composable
 private fun SupportCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 1.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-
         Column(
-            modifier = Modifier.padding(
-                horizontal = 14.dp,
-                vertical = 6.dp
-            )
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         ) {
-
             ProfileMenuItem(
                 icon = Icons.Outlined.HelpOutline,
                 title = "Bantuan & Dukungan",
@@ -600,11 +446,6 @@ private fun SupportCard() {
     }
 }
 
-
-/* ============================================================
-   MENU ITEM
-   ============================================================ */
-
 @Composable
 private fun ProfileMenuItem(
     icon: ImageVector,
@@ -615,13 +456,9 @@ private fun ProfileMenuItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 14.dp,
-                horizontal = 10.dp
-            ),
+            .padding(vertical = 14.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Box(
             modifier = Modifier
                 .size(52.dp)
@@ -639,9 +476,7 @@ private fun ProfileMenuItem(
 
         Spacer(modifier = Modifier.width(14.dp))
 
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 fontSize = 17.sp,
@@ -667,17 +502,13 @@ private fun ProfileMenuItem(
             ) {
                 Text(
                     text = badge,
-                    modifier = Modifier.padding(
-                        horizontal = 10.dp,
-                        vertical = 6.dp
-                    ),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = StudyBlue,
                     maxLines = 1
                 )
             }
-
             Spacer(modifier = Modifier.width(8.dp))
         }
 
@@ -689,7 +520,6 @@ private fun ProfileMenuItem(
         )
     }
 }
-
 
 @Composable
 private fun MenuDivider() {

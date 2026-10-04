@@ -1,6 +1,7 @@
 package com.kelompok8.studytrack.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,15 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,96 +40,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.data.TaskData
+import com.kelompok8.studytrack.data.models.Task
+import com.kelompok8.studytrack.data.models.TaskPriority
+import com.kelompok8.studytrack.data.models.TaskStatus
+import com.kelompok8.studytrack.regulation.TaskRegulation
+import com.kelompok8.studytrack.ui.components.StudyTrackHeader
 import com.kelompok8.studytrack.ui.theme.StudyBlue
 import com.kelompok8.studytrack.ui.theme.StudyBlueLight
 import com.kelompok8.studytrack.ui.theme.StudyGreen
 import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 
 @Composable
-fun CalendarScreen() {
-
-    var selectedDay by remember {
-        mutableIntStateOf(16)
-    }
+fun CalendarScreen(
+    onNotificationClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    tasks: List<Task> = TaskData.initialTasks
+) {
+    var selectedDay by remember { mutableIntStateOf(16) }
+    val agendaTasks = TaskRegulation.getTasksForDay(tasks, selectedDay)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(
-            horizontal = 20.dp,
-            vertical = 20.dp
-        ),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-
-        // =========================
+        // ====================================================
         // HEADER
-        // =========================
+        // ====================================================
 
         item {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Icon(
-                    imageVector = Icons.Outlined.School,
-                    contentDescription = "StudyTrack",
-                    modifier = Modifier.size(44.dp),
-                    tint = StudyBlue
-                )
-
-                Spacer(
-                    modifier = Modifier.size(12.dp)
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-
-                    Text(
-                        text = "STUDYTRACK",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = StudyBlue
-                    )
-
-                    Text(
-                        text = "Kalender",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-
-                Icon(
-                    imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "Notifikasi",
-                    modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-
-                Spacer(
-                    modifier = Modifier.size(16.dp)
-                )
-
-                Icon(
-                    imageVector = Icons.Outlined.Person,
-                    contentDescription = "Profil",
-                    modifier = Modifier.size(30.dp),
-                    tint = StudyBlue
-                )
-            }
+            StudyTrackHeader(
+                title = "Kalender",
+                onNotificationClick = onNotificationClick,
+                onProfileClick = onProfileClick
+            )
         }
 
-        // =========================
-        // KALENDER
-        // =========================
+        // ====================================================
+        // KALENDER GRID CARD
+        // ====================================================
 
         item {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
@@ -141,20 +94,13 @@ fun CalendarScreen() {
                     defaultElevation = 2.dp
                 )
             ) {
-
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
-
-                    // =========================
-                    // BULAN
-                    // =========================
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Icon(
                             imageVector = Icons.Outlined.ChevronLeft,
                             contentDescription = "Bulan sebelumnya",
@@ -166,7 +112,6 @@ fun CalendarScreen() {
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-
                             Text(
                                 text = "September 2026",
                                 fontSize = 20.sp,
@@ -189,41 +134,32 @@ fun CalendarScreen() {
                         )
                     }
 
-                    Spacer(
-                        modifier = Modifier.height(24.dp)
-                    )
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     CalendarGrid(
                         selectedDay = selectedDay,
-                        onDaySelected = {
-                            selectedDay = it
-                        }
+                        onDaySelected = { selectedDay = it }
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     CalendarLegend()
                 }
             }
         }
 
-        // =========================
-        // AGENDA
-        // =========================
+        // ====================================================
+        // AGENDA HEADER
+        // ====================================================
 
         item {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-
                     Text(
                         text = "Hari Ini, $selectedDay September 2026",
                         fontSize = 21.sp,
@@ -244,15 +180,10 @@ fun CalendarScreen() {
                         containerColor = StudyBlueLight
                     )
                 ) {
-
                     Row(
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp
-                        ),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         Icon(
                             imageVector = Icons.Outlined.CalendarMonth,
                             contentDescription = null,
@@ -260,12 +191,10 @@ fun CalendarScreen() {
                             tint = StudyBlue
                         )
 
-                        Spacer(
-                            modifier = Modifier.size(5.dp)
-                        )
+                        Spacer(modifier = Modifier.size(5.dp))
 
                         Text(
-                            text = "3 Tugas",
+                            text = "${agendaTasks.size} Tugas",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = StudyBlue
@@ -275,70 +204,36 @@ fun CalendarScreen() {
             }
         }
 
-        // =========================
-        // AGENDA 1
-        // =========================
+        // ====================================================
+        // AGENDA ITEMS (COLLECTION)
+        // ====================================================
 
-        item {
-
-            CalendarTaskCard(
-                subject = "UI/UX Design",
-                title = "UI/UX Design Heuristic Evaluation",
-                time = "14:00",
-                priority = "Sedang",
-                status = "Selesai",
-                color = StudyGreen
-            )
+        items(
+            items = agendaTasks,
+            key = { it.id }
+        ) { task ->
+            CalendarTaskCard(task = task)
         }
 
-        // =========================
-        // AGENDA 2
-        // =========================
-
-        item {
-
-            CalendarTaskCard(
-                subject = "Basis Data",
-                title = "Normalisasi Database",
-                time = "18:00",
-                priority = "Rendah",
-                status = "Sedang Dikerjakan",
-                color = StudyBlue
-            )
-        }
-
-        // =========================
-        // AGENDA 3
-        // =========================
-
-        item {
-
-            CalendarTaskCard(
-                subject = "Kriptografi",
-                title = "Cryptography Assignment 2",
-                time = "23:59",
-                priority = "Tinggi",
-                status = "Sedang Dikerjakan",
-                color = Color(0xFFD32F2F)
-            )
+        if (agendaTasks.isEmpty()) {
+            item {
+                Text(
+                    text = "Tidak ada agenda pada tanggal ini.",
+                    fontSize = 14.sp,
+                    color = StudyTextSecondary,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
+            }
         }
     }
 }
-
-
-// =====================================================
-// CALENDAR GRID
-// =====================================================
 
 @Composable
 private fun CalendarGrid(
     selectedDay: Int,
     onDaySelected: (Int) -> Unit
 ) {
-
-    val days = listOf(
-        "M", "S", "S", "R", "K", "J", "S"
-    )
+    val days = listOf("M", "S", "S", "R", "K", "J", "S")
 
     val dates = listOf(
         null, null, "1", "2", "3", "4", "5",
@@ -351,46 +246,31 @@ private fun CalendarGrid(
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             days.forEachIndexed { index, day ->
-
                 Text(
                     text = day,
                     modifier = Modifier.width(36.dp),
                     textAlign = TextAlign.Center,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = if (index == 0) {
-                        Color(0xFFD32F2F)
-                    } else {
-                        StudyTextSecondary
-                    }
+                    color = if (index == 0) Color(0xFFD32F2F) else StudyTextSecondary
                 )
             }
         }
 
         dates.chunked(7).forEach { week ->
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 week.forEach { date ->
-
                     if (date == null) {
-
-                        Spacer(
-                            modifier = Modifier.size(36.dp)
-                        )
-
+                        Spacer(modifier = Modifier.size(36.dp))
                     } else {
-
                         val day = date.toInt()
 
                         Box(
@@ -398,28 +278,16 @@ private fun CalendarGrid(
                                 .size(36.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (day == selectedDay) {
-                                        StudyBlue
-                                    } else {
-                                        Color.Transparent
-                                    }
-                                ),
+                                    if (day == selectedDay) StudyBlue else Color.Transparent
+                                )
+                                .clickable { onDaySelected(day) },
                             contentAlignment = Alignment.Center
                         ) {
-
                             Text(
                                 text = date,
                                 fontSize = 14.sp,
-                                fontWeight = if (day == selectedDay) {
-                                    FontWeight.Bold
-                                } else {
-                                    FontWeight.Medium
-                                },
-                                color = if (day == selectedDay) {
-                                    Color.White
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                }
+                                fontWeight = if (day == selectedDay) FontWeight.Bold else FontWeight.Medium,
+                                color = if (day == selectedDay) Color.White else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -429,87 +297,43 @@ private fun CalendarGrid(
     }
 }
 
-
-// =====================================================
-// LEGEND
-// =====================================================
-
 @Composable
 private fun CalendarLegend() {
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
-
-        LegendItem(
-            color = Color(0xFFD32F2F),
-            text = "Tinggi"
-        )
-
-        Spacer(
-            modifier = Modifier.size(18.dp)
-        )
-
-        LegendItem(
-            color = Color(0xFFFFB300),
-            text = "Sedang"
-        )
-
-        Spacer(
-            modifier = Modifier.size(18.dp)
-        )
-
-        LegendItem(
-            color = StudyGreen,
-            text = "Rendah"
-        )
+        LegendItem(color = Color(0xFFD32F2F), text = "Tinggi")
+        Spacer(modifier = Modifier.size(18.dp))
+        LegendItem(color = Color(0xFFFFB300), text = "Sedang")
+        Spacer(modifier = Modifier.size(18.dp))
+        LegendItem(color = StudyGreen, text = "Rendah")
     }
 }
 
 @Composable
-private fun LegendItem(
-    color: Color,
-    text: String
-) {
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
+private fun LegendItem(color: Color, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
                 .size(9.dp)
                 .clip(CircleShape)
                 .background(color)
         )
-
-        Spacer(
-            modifier = Modifier.size(5.dp)
-        )
-
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            color = StudyTextSecondary
-        )
+        Spacer(modifier = Modifier.size(5.dp))
+        Text(text = text, fontSize = 12.sp, color = StudyTextSecondary)
     }
 }
 
-
-// =====================================================
-// CALENDAR TASK CARD
-// =====================================================
-
 @Composable
-private fun CalendarTaskCard(
-    subject: String,
-    title: String,
-    time: String,
-    priority: String,
-    status: String,
-    color: Color
-) {
+private fun CalendarTaskCard(task: Task) {
+    val accentColor = when (task.priority) {
+        TaskPriority.HIGH -> Color(0xFFD32F2F)
+        TaskPriority.MEDIUM -> StudyBlue
+        TaskPriority.LOW -> StudyGreen
+    }
+
+    val isDone = task.status == TaskStatus.COMPLETED
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -521,16 +345,14 @@ private fun CalendarTaskCard(
             defaultElevation = 2.dp
         )
     ) {
-
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-
             Spacer(
                 modifier = Modifier
                     .width(6.dp)
                     .height(150.dp)
-                    .background(color)
+                    .background(accentColor)
             )
 
             Column(
@@ -538,86 +360,63 @@ private fun CalendarTaskCard(
                     .weight(1f)
                     .padding(18.dp)
             ) {
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
-                        text = subject,
+                        text = task.subject,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         color = StudyBlue
                     )
 
-                    Spacer(
-                        modifier = Modifier.weight(1f)
-                    )
+                    Spacer(modifier = Modifier.weight(1f))
 
                     Text(
-                        text = time,
+                        text = task.dueTimeText,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                         color = StudyTextSecondary
                     )
                 }
 
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = title,
+                    text = task.title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(
-                    modifier = Modifier.height(14.dp)
-                )
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
-                        text = priority,
+                        text = task.priorityLabel,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = color
+                        color = accentColor
                     )
 
-                    Spacer(
-                        modifier = Modifier.weight(1f)
-                    )
+                    Spacer(modifier = Modifier.weight(1f))
 
                     Card(
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (status == "Selesai") {
-                                Color(0xFFD1FAE5)
-                            } else {
-                                StudyBlueLight
-                            }
+                            containerColor = if (isDone) Color(0xFFD1FAE5) else StudyBlueLight
                         )
                     ) {
-
                         Text(
-                            text = status,
-                            modifier = Modifier.padding(
-                                horizontal = 12.dp,
-                                vertical = 6.dp
-                            ),
+                            text = task.statusLabel,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (status == "Selesai") {
-                                StudyGreen
-                            } else {
-                                StudyBlue
-                            }
+                            color = if (isDone) StudyGreen else StudyBlue
                         )
                     }
                 }
