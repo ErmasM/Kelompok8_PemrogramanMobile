@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -29,11 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.R
 import com.kelompok8.studytrack.data.UserData
 import com.kelompok8.studytrack.regulation.UserRegulation
 import com.kelompok8.studytrack.ui.theme.StudyBlue
@@ -43,11 +46,19 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 fun LoginScreen(
     onRegisterClick: () -> Unit,
     onLoginSuccess: () -> Unit,
-    onPerformLogin: (email: String, password: String) -> Boolean = { e, p -> false }
+    onPerformLogin: (email: String, password: String) -> Boolean = { _, _ -> false }
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var email by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var password by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var errorMessage by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
 
     val isValid = UserRegulation.validateLoginCredentials(email, password)
 
@@ -59,18 +70,23 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
         // =========================
-        // LOGO
+        // LOGO STUDYTRACK
         // =========================
 
-        Icon(
-            imageVector = Icons.Outlined.School,
+        Image(
+            painter = painterResource(id = R.drawable.studytrack_logo_compact),
             contentDescription = "StudyTrack",
-            modifier = Modifier.height(64.dp),
-            tint = StudyBlue
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp),
+            contentScale = ContentScale.Fit
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         // =========================
         // TITLE
@@ -83,7 +99,9 @@ fun LoginScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = "Login untuk mengelola tugas dan perkuliahanmu",
@@ -91,7 +109,9 @@ fun LoginScreen(
             color = StudyTextSecondary
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(
+            modifier = Modifier.height(32.dp)
+        )
 
         // =========================
         // EMAIL
@@ -104,8 +124,12 @@ fun LoginScreen(
                 errorMessage = null
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email Mahasiswa") },
-            placeholder = { Text("contoh@student.unsoed.ac.id") },
+            label = {
+                Text("Email Mahasiswa")
+            },
+            placeholder = {
+                Text("contoh@student.unsoed.ac.id")
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
@@ -119,7 +143,9 @@ fun LoginScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         // =========================
         // PASSWORD
@@ -132,8 +158,12 @@ fun LoginScreen(
                 errorMessage = null
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Password") },
-            placeholder = { Text("Masukkan password") },
+            label = {
+                Text("Password")
+            },
+            placeholder = {
+                Text("Masukkan password")
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
@@ -148,8 +178,15 @@ fun LoginScreen(
             singleLine = true
         )
 
+        // =========================
+        // ERROR MESSAGE
+        // =========================
+
         if (errorMessage != null) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
             Text(
                 text = errorMessage!!,
                 color = Color(0xFFD32F2F),
@@ -158,7 +195,9 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(
+            modifier = Modifier.height(28.dp)
+        )
 
         // =========================
         // LOGIN BUTTON
@@ -168,13 +207,15 @@ fun LoginScreen(
             onClick = {
                 if (isValid) {
                     val success = onPerformLogin(email, password)
+
                     if (success) {
                         onLoginSuccess()
                     } else {
                         errorMessage = "Email atau password tidak cocok."
                     }
                 } else {
-                    errorMessage = "Email harus valid dan password minimal 8 karakter."
+                    errorMessage =
+                        "Email harus valid dan password minimal 8 karakter."
                 }
             },
             modifier = Modifier
@@ -193,7 +234,9 @@ fun LoginScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         // =========================
         // REGISTER
@@ -203,7 +246,9 @@ fun LoginScreen(
             text = "Belum punya akun? Daftar",
             fontSize = 15.sp,
             color = StudyBlue,
-            modifier = Modifier.clickable(onClick = onRegisterClick)
+            modifier = Modifier.clickable(
+                onClick = onRegisterClick
+            )
         )
     }
 }

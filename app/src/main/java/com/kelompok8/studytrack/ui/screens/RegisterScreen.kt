@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,11 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kelompok8.studytrack.R
 import com.kelompok8.studytrack.data.UserData
 import com.kelompok8.studytrack.regulation.UserRegulation
 import com.kelompok8.studytrack.ui.theme.StudyBlue
@@ -44,36 +47,51 @@ import com.kelompok8.studytrack.ui.theme.StudyTextSecondary
 fun RegisterScreen(
     onLoginClick: () -> Unit,
     onRegisterSuccess: () -> Unit = {},
-    onPerformRegister: (name: String, email: String, password: String) -> Boolean = { n, e, p -> false }
+    onPerformRegister: (name: String, email: String, password: String) -> Boolean = { _, _, _ -> false }
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var errorMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val isValid = UserRegulation.validateRegistrationData(name, email, password)
+    val isValid = UserRegulation.validateRegistrationData(
+        name,
+        email,
+        password
+    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp),
+            .padding(
+                horizontal = 24.dp,
+                vertical = 24.dp
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
 
         // =========================
-        // LOGO
+        // LOGO STUDYTRACK
         // =========================
 
-        Icon(
-            imageVector = Icons.Outlined.School,
+        androidx.compose.foundation.Image(
+            painter = painterResource(
+                id = R.drawable.studytrack_logo_compact
+            ),
             contentDescription = "StudyTrack",
-            modifier = Modifier.height(64.dp),
-            tint = StudyBlue
+            modifier = Modifier
+                .size(
+                    width = 180.dp,
+                    height = 100.dp
+                ),
+            contentScale = ContentScale.Fit
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
         // =========================
         // TITLE
@@ -86,7 +104,9 @@ fun RegisterScreen(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = "Mulai kelola perkuliahan dan tugasmu dengan StudyTrack",
@@ -94,10 +114,12 @@ fun RegisterScreen(
             color = StudyTextSecondary
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         // =========================
-        // FULL NAME
+        // NAMA LENGKAP
         // =========================
 
         OutlinedTextField(
@@ -107,8 +129,12 @@ fun RegisterScreen(
                 errorMessage = null
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Nama Lengkap") },
-            placeholder = { Text("Masukkan nama lengkap") },
+            label = {
+                Text("Nama Lengkap")
+            },
+            placeholder = {
+                Text("Masukkan nama lengkap")
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Person,
@@ -119,7 +145,9 @@ fun RegisterScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         // =========================
         // EMAIL
@@ -132,8 +160,12 @@ fun RegisterScreen(
                 errorMessage = null
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Email Mahasiswa") },
-            placeholder = { Text("contoh@student.unsoed.ac.id") },
+            label = {
+                Text("Email Mahasiswa")
+            },
+            placeholder = {
+                Text("contoh@student.unsoed.ac.id")
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
@@ -147,7 +179,9 @@ fun RegisterScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         // =========================
         // PASSWORD
@@ -160,8 +194,12 @@ fun RegisterScreen(
                 errorMessage = null
             },
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Password") },
-            placeholder = { Text("Buat password (min 8 karakter)") },
+            label = {
+                Text("Password")
+            },
+            placeholder = {
+                Text("Buat password (min 8 karakter)")
+            },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
@@ -176,8 +214,15 @@ fun RegisterScreen(
             singleLine = true
         )
 
+        // =========================
+        // ERROR MESSAGE
+        // =========================
+
         if (errorMessage != null) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
             Text(
                 text = errorMessage!!,
                 color = Color(0xFFD32F2F),
@@ -186,7 +231,9 @@ fun RegisterScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         // =========================
         // REGISTER BUTTON
@@ -195,14 +242,24 @@ fun RegisterScreen(
         Button(
             onClick = {
                 if (isValid) {
-                    val success = onPerformRegister(name, email, password)
+
+                    val success = onPerformRegister(
+                        name,
+                        email,
+                        password
+                    )
+
                     if (success) {
                         onRegisterSuccess()
                     } else {
-                        errorMessage = "Email sudah terdaftar. Silakan login."
+                        errorMessage =
+                            "Email sudah terdaftar. Silakan login."
                     }
+
                 } else {
-                    errorMessage = "Nama wajib diisi, email harus valid, dan password minimal 8 karakter."
+
+                    errorMessage =
+                        "Nama wajib diisi, email harus valid, dan password minimal 8 karakter."
                 }
             },
             modifier = Modifier
@@ -221,7 +278,9 @@ fun RegisterScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
 
         // =========================
         // LOGIN
@@ -231,7 +290,9 @@ fun RegisterScreen(
             text = "Sudah punya akun? Login",
             fontSize = 15.sp,
             color = StudyBlue,
-            modifier = Modifier.clickable(onClick = onLoginClick)
+            modifier = Modifier.clickable(
+                onClick = onLoginClick
+            )
         )
     }
 }
